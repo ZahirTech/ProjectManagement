@@ -158,8 +158,13 @@ body {
     transition: margin-left 0.3s ease;
 }
 
-.page {
+/* .page {
     display: none;
+} */
+
+.link_remove{
+    text-decoration: none;
+    color:white;
 }
 
 .page.active {
