@@ -34,11 +34,13 @@
                 </li>
             </a>
         </ul>
-        <form class="" method="POST" action="{{ route('logout') }}">
+        <form method="POST" action="{{ route('logout') }}"
+            onsubmit="return confirm('Are you sure you want to log out?')">
             @csrf
             <button type="submit" class="logout-btn logout-nav">
-            <span class="nav-icon">🚪</span>
-            <span>Logout</span>
+                <span class="nav-icon">🚪</span>
+                <span>Logout</span>
             </button>
         </form>
+
     </div>
