@@ -34,8 +34,11 @@
                 </li>
             </a>
         </ul>
-        <div class="logout-nav" onclick="logout()">
+        <form class="" method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="logout-btn logout-nav">
             <span class="nav-icon">🚪</span>
             <span>Logout</span>
-        </div>
+            </button>
+        </form>
     </div>

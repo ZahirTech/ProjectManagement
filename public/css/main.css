@@ -1062,6 +1062,26 @@ body {
     margin-bottom: 15px;
 }
 
+.logout-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.logout-btn:hover {
+    opacity: 0.8;
+}
+
+/* Common Style  */
+
+.mt-3{
+    margin-top: 2rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .menu-toggle {
