@@ -225,10 +225,10 @@
 
                     <button type="submit" class="submit-btn">Login</button>
 
-                    <p class="form-note">
+                    {{-- <p class="form-note">
                         Don't have an account?
                         <a href="{{ route('register') }}">Register here</a>
-                    </p>
+                    </p> --}}
                 </form>
             </div>
         </div>
