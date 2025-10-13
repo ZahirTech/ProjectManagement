@@ -11,11 +11,12 @@
 <body>
 
     @include('design.includes.sidebar')
+    
     <!-- Main Content -->
+
     <div class="main-content">
-
+        @include('design.includes.alert')
         @yield('content')
-
     </div>
 
     <script src="{{ asset('js/main.js') }}"></script>

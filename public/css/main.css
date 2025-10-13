@@ -162,9 +162,9 @@ body {
     display: none;
 } */
 
-.link_remove{
+.link_remove {
     text-decoration: none;
-    color:white;
+    color: white;
 }
 
 .page.active {
@@ -1072,14 +1072,37 @@ body {
     align-items: center;
     gap: 6px;
 }
+
 .logout-btn:hover {
     opacity: 0.8;
 }
 
 /* Common Style  */
 
-.mt-3{
+.mt-3 {
     margin-top: 2rem;
+}
+
+.alert-error {
+    background-color: #ffe4e4;
+    color: #b00020;
+    border: 1px solid #f5c2c2;
+    border-radius: 8px;
+    padding: 10px 15px;
+    text-align: center;
+    margin-bottom: 18px;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #e0ffe4;
+    color: #007a1f;
+    border: 1px solid #b6f5c2;
+    border-radius: 8px;
+    padding: 10px 15px;
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 500;
 }
 
 /* Responsive Design */

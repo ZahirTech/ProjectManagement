@@ -12,7 +12,7 @@ Route::get('project_manage', [ProjectManageController::class, 'list'])->name('pr
 Route::get('project_manage/show', [ProjectManageController::class, 'show'])->name('projectmng.show');
 });
 
-Route::get('login', [AuthController::class, 'showLogin'])->name('showLogin');
+Route::get('login', [AuthController::class, 'showLogin'])->middleware('guest')->name('showLogin');
 Route::get('register', [AuthController::class, 'showRegister'])->name('showRegister');
 
 Route::post('login', [AuthController::class, 'login'])->name('login');

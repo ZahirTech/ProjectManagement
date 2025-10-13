@@ -41,7 +41,8 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('project_manage');
+            // session()->flash('success', 'Welcome back.');
+            return redirect()->route('dashboard');
         }
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
