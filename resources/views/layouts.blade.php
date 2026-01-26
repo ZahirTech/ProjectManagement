@@ -11,7 +11,7 @@
 <body>
 
     @include('design.includes.sidebar')
-    
+
     <!-- Main Content -->
 
     <div class="main-content">
@@ -20,6 +20,7 @@
     </div>
 
     <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/project-manage.js') }}"></script>
 </body>
 
 </html>

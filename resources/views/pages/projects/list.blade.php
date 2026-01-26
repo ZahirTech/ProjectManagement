@@ -1,345 +1,177 @@
-        @extends('layouts')
+@extends('layouts')
 
-        @section('content')
-            <!-- LIST PAGE -->
-            <div id="list" class="page">
-                <div class="page-header">
-                    <h1>All Project Items</h1>
-                </div>
+@section('content')
+    <!-- LIST PAGE -->
+    <div id="list" class="page">
+        <div class="page-header">
+            <h1>All Project Items</h1>
+        </div>
 
-                <!-- Project Selector -->
-                <div class="project-selector">
-                    <label>Filter by Project</label>
-                    <select id="listProjectSelect">
-                        <option value="all">All Projects</option>
-                        <option value="project1">Website Redesign</option>
-                        <option value="project2">Mobile App Development</option>
-                        <option value="project3">Marketing Campaign</option>
-                        <option value="project4">Database Migration</option>
-                    </select>
-                </div>
-
-                <!-- Tabs -->
-                <div class="tabs-container">
-                    <div class="tabs-header">
-                        <button class="tab-btn active" onclick="switchTab(event, 'pending')">
-                            Pending <span class="tab-badge">42</span>
-                        </button>
-                        <button class="tab-btn" onclick="switchTab(event, 'processing')">
-                            Processing <span class="tab-badge">38</span>
-                        </button>
-                        <button class="tab-btn" onclick="switchTab(event, 'completed')">
-                            Completed <span class="tab-badge">44</span>
-                        </button>
-                        <button class="tab-btn" onclick="switchTab(event, 'on-hold')">
-                            On Hold <span class="tab-badge">0</span>
-                        </button>
-                    </div>
-
-                    <!-- Pending Tab -->
-                    <div id="pending" class="tab-content active">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Project</th>
-                                    <th>Status</th>
-                                    <th>Priority</th>
-                                    <th>Due Date</th>
-                                    <th>Attachments</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#001</td>
-                                    <td>Review Design Mockups</td>
-                                    <td>Website Redesign</td>
-                                    <td>
-                                        <select class="status-select status-pending" onchange="updateStatus(this, 1)">
-                                            <option value="pending" selected>Pending</option>
-                                            <option value="processing">Processing</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>High</td>
-                                    <td>2025-10-15</td>
-                                    <td>
-                                        <span class="attachment-indicator">
-                                            📎 3 files
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(1)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#002</td>
-                                    <td>Content Strategy Document</td>
-                                    <td>Marketing Campaign</td>
-                                    <td>
-                                        <select class="status-select status-pending" onchange="updateStatus(this, 2)">
-                                            <option value="pending" selected>Pending</option>
-                                            <option value="processing">Processing</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>Medium</td>
-                                    <td>2025-10-18</td>
-                                    <td>
-                                        <span class="attachment-indicator">
-                                            📎 1 file
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(2)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#003</td>
-                                    <td>User Testing Plan</td>
-                                    <td>Mobile App Development</td>
-                                    <td>
-                                        <select class="status-select status-pending" onchange="updateStatus(this, 3)">
-                                            <option value="pending" selected>Pending</option>
-                                            <option value="processing">Processing</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>Low</td>
-                                    <td>2025-10-20</td>
-                                    <td>-</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(3)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Pagination -->
-                        <div class="pagination-container">
-                            <div class="pagination-info">
-                                Showing 1-3 of 42 items
-                            </div>
-                            <div class="pagination">
-                                <button class="pagination-btn" disabled>← Prev</button>
-                                <button class="pagination-btn active">1</button>
-                                <button class="pagination-btn">2</button>
-                                <button class="pagination-btn">3</button>
-                                <button class="pagination-btn dots">...</button>
-                                <button class="pagination-btn">14</button>
-                                <button class="pagination-btn">Next →</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Processing Tab -->
-                    <div id="processing" class="tab-content">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Project</th>
-                                    <th>Status</th>
-                                    <th>Priority</th>
-                                    <th>Due Date</th>
-                                    <th>Attachments</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#004</td>
-                                    <td>API Integration Testing</td>
-                                    <td>Mobile App Development</td>
-                                    <td>
-                                        <select class="status-select status-processing" onchange="updateStatus(this, 4)">
-                                            <option value="pending">Pending</option>
-                                            <option value="processing" selected>Processing</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>Urgent</td>
-                                    <td>2025-10-12</td>
-                                    <td>
-                                        <span class="attachment-indicator">
-                                            📎 5 files
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(4)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#005</td>
-                                    <td>Database Schema Review</td>
-                                    <td>Database Migration</td>
-                                    <td>
-                                        <select class="status-select status-processing" onchange="updateStatus(this, 5)">
-                                            <option value="pending">Pending</option>
-                                            <option value="processing" selected>Processing</option>
-                                            <option value="completed">Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>High</td>
-                                    <td>2025-10-14</td>
-                                    <td>
-                                        <span class="attachment-indicator">
-                                            📎 2 files
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(5)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Pagination -->
-                        <div class="pagination-container">
-                            <div class="pagination-info">
-                                Showing 1-2 of 38 items
-                            </div>
-                            <div class="pagination">
-                                <button class="pagination-btn" disabled>← Prev</button>
-                                <button class="pagination-btn active">1</button>
-                                <button class="pagination-btn">2</button>
-                                <button class="pagination-btn">3</button>
-                                <button class="pagination-btn dots">...</button>
-                                <button class="pagination-btn">13</button>
-                                <button class="pagination-btn">Next →</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Completed Tab -->
-                    <div id="completed" class="tab-content">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Project</th>
-                                    <th>Status</th>
-                                    <th>Priority</th>
-                                    <th>Completed Date</th>
-                                    <th>Attachments</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#006</td>
-                                    <td>Homepage Design</td>
-                                    <td>Website Redesign</td>
-                                    <td>
-                                        <select class="status-select status-completed" onchange="updateStatus(this, 6)">
-                                            <option value="pending">Pending</option>
-                                            <option value="processing">Processing</option>
-                                            <option value="completed" selected>Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>High</td>
-                                    <td>2025-10-08</td>
-                                    <td>
-                                        <span class="attachment-indicator">
-                                            📎 8 files
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(6)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#007</td>
-                                    <td>SEO Optimization</td>
-                                    <td>Marketing Campaign</td>
-                                    <td>
-                                        <select class="status-select status-completed" onchange="updateStatus(this, 7)">
-                                            <option value="pending">Pending</option>
-                                            <option value="processing">Processing</option>
-                                            <option value="completed" selected>Completed</option>
-                                            <option value="on-hold">On Hold</option>
-                                        </select>
-                                    </td>
-                                    <td>Medium</td>
-                                    <td>2025-10-05</td>
-                                    <td>-</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="icon-btn view" onclick="showDetails(7)"
-                                                title="View Details">👁️</button>
-                                            <button class="icon-btn edit" title="Edit">✏️</button>
-                                            <button class="icon-btn delete" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <!-- Pagination -->
-                        <div class="pagination-container">
-                            <div class="pagination-info">
-                                Showing 1-2 of 44 items
-                            </div>
-                            <div class="pagination">
-                                <button class="pagination-btn" disabled>← Prev</button>
-                                <button class="pagination-btn active">1</button>
-                                <button class="pagination-btn">2</button>
-                                <button class="pagination-btn">3</button>
-                                <button class="pagination-btn dots">...</button>
-                                <button class="pagination-btn">15</button>
-                                <button class="pagination-btn">Next →</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- On Hold Tab -->
-                    <div id="on-hold" class="tab-content">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">⏸️</div>
-                            <h3>No Items On Hold</h3>
-                            <p>There are currently no items with "On Hold" status</p>
-                        </div>
-                    </div>
-                </div>
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
             </div>
-        @endsection
+        @endif
+
+        <!-- Project Selector and My Items Toggle -->
+        <div class="filter-controls" style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+            <div class="project-selector" style="flex: 1;">
+                <label>Filter by Project</label>
+                <select id="listProjectSelect">
+                    <option value="all" {{ request('project_id') == 'all' ? 'selected' : '' }}>All Projects</option>
+                    @foreach ($projects as $project)
+                        <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                            {{ $project->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="my-items-toggle">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="myItemsToggle" {{ request('my_items') ? 'checked' : '' }}>
+                    <span>Show only my assigned items</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn {{ !request('status') || request('status') == 'pending' ? 'active' : '' }}"
+                    onclick="switchTab(event, 'pending')">
+                    Pending <span class="tab-badge">{{ $counts['pending'] }}</span>
+                </button>
+                <button class="tab-btn {{ request('status') == 'processing' ? 'active' : '' }}"
+                    onclick="switchTab(event, 'processing')">
+                    Processing <span class="tab-badge">{{ $counts['processing'] }}</span>
+                </button>
+                <button class="tab-btn {{ request('status') == 'completed' ? 'active' : '' }}"
+                    onclick="switchTab(event, 'completed')">
+                    Completed <span class="tab-badge">{{ $counts['completed'] }}</span>
+                </button>
+                <button class="tab-btn {{ request('status') == 'on-hold' ? 'active' : '' }}"
+                    onclick="switchTab(event, 'on-hold')">
+                    On Hold <span class="tab-badge">{{ $counts['on-hold'] }}</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Tab Content -->
+            <div id="{{ request('status', 'pending') }}" class="tab-content active">
+                @if ($items->count() > 0)
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Assigned To</th>
+                                <th>Attachments</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($items as $item)
+                                <tr>
+                                    <td>#{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}</td>
+                                    <td>
+                                        {{ $item->title }}
+                                        @if ($item->is_private)
+                                            <span style="color: #f56565; font-size: 12px;">🔒 Private</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $item->project->name }}</td>
+                                    <td>
+                                        <select class="status-select status-{{ $item->status }}"
+                                            onchange="updateStatus(this, {{ $item->id }})">
+                                            <option value="pending" {{ $item->status == 'pending' ? 'selected' : '' }}>
+                                                Pending</option>
+                                            <option value="processing"
+                                                {{ $item->status == 'processing' ? 'selected' : '' }}>Processing</option>
+                                            <option value="completed" {{ $item->status == 'completed' ? 'selected' : '' }}>
+                                                Completed</option>
+                                            <option value="on-hold" {{ $item->status == 'on-hold' ? 'selected' : '' }}>On
+                                                Hold</option>
+                                        </select>
+                                    </td>
+                                    <td>{{ ucfirst($item->priority) }}</td>
+                                    <td>{{ $item->due_date ? $item->due_date->format('Y-m-d') : '-' }}</td>
+                                    <td>{{ $item->assignedUser ? $item->assignedUser->name : 'Not Assigned' }}</td>
+                                    <td>
+                                        @if ($item->attachments->count() > 0)
+                                            <span class="attachment-indicator">
+                                                📎 {{ $item->attachments->count() }}
+                                                file{{ $item->attachments->count() > 1 ? 's' : '' }}
+                                            </span>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="icon-btn view" onclick="showDetails({{ $item->id }})"
+                                                title="View Details">👁️</button>
+                                            @if ($item->created_by == auth()->id())
+                                                <button class="icon-btn edit"
+                                                    onclick="window.location.href='/project_manage/{{ $item->id }}/edit'"
+                                                    title="Edit">✏️</button>
+                                                <button class="icon-btn delete" onclick="deleteItem({{ $item->id }})"
+                                                    title="Delete">🗑️</button>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            Showing {{ $items->firstItem() }}-{{ $items->lastItem() }} of {{ $items->total() }} items
+                        </div>
+                        <div class="pagination">
+                            {{ $items->appends(request()->query())->links() }}
+                        </div>
+                    </div>
+                @else
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No Items Found</h3>
+                        <p>There are no items matching your current filters</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .filter-controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .my-items-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
+@endsection
