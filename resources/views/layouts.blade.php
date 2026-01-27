@@ -17,7 +17,7 @@
     <!-- Main Content -->
 
     <div class="main-content">
-        @include('design.includes.alert')
+        {{-- @include('design.includes.alert') --}}
         @yield('content')
     </div>
 

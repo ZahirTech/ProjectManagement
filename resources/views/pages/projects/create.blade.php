@@ -7,21 +7,7 @@
             <h1>Create New Item</h1>
         </div>
 
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-error">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        @include('design.includes.alert')
 
         <div class="form-card">
             <form id="createForm" action="{{ route('projectmng.store') }}" method="POST" enctype="multipart/form-data">

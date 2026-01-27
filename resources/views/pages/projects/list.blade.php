@@ -7,11 +7,7 @@
             <h1>All Project Items</h1>
         </div>
 
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+        @include('design.includes.alert')
 
         <!-- Compact Filter Bar -->
         <div class="filter-bar">
