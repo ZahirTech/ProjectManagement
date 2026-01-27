@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Project Management System</title>
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
 </head>
@@ -20,7 +21,9 @@
     </div>
 
     <script src="{{ asset('js/main.js') }}"></script>
-    <script src="{{ asset('js/project-manage.js') }}"></script>
+    <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 </body>
 
 </html>

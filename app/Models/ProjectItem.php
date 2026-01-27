@@ -19,6 +19,7 @@ class ProjectItem extends Model
         'due_date',
         'progress',
         'is_private',
+        'is_pinned',
         'created_by',
         'assigned_to',
         'completed_at'
@@ -28,6 +29,7 @@ class ProjectItem extends Model
         'due_date' => 'date',
         'completed_at' => 'datetime',
         'is_private' => 'boolean',
+        'is_pinned' => 'boolean',
         'progress' => 'integer'
     ];
 

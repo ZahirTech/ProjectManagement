@@ -13,12 +13,11 @@
             </div>
         @endif
 
-        <!-- Project Selector and My Items Toggle -->
-        <div class="filter-controls" style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
-            <div class="project-selector" style="flex: 1;">
-                <label>Filter by Project</label>
-                <select id="listProjectSelect">
-                    <option value="all" {{ request('project_id') == 'all' ? 'selected' : '' }}>All Projects</option>
+        <!-- Compact Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-left">
+                <select id="listProjectSelect" class="compact-select">
+                    <option value="all">All Projects</option>
                     @foreach ($projects as $project)
                         <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
                             {{ $project->name }}
@@ -27,10 +26,11 @@
                 </select>
             </div>
 
-            <div class="my-items-toggle">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <div class="filter-right">
+                <label class="toggle-switch">
                     <input type="checkbox" id="myItemsToggle" {{ request('my_items') ? 'checked' : '' }}>
-                    <span>Show only my assigned items</span>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">My Assignments</span>
                 </label>
             </div>
         </div>
@@ -115,6 +115,11 @@
                                             <button class="icon-btn view" onclick="showDetails({{ $item->id }})"
                                                 title="View Details">👁️</button>
                                             @if ($item->created_by == auth()->id())
+                                                <button class="icon-btn pin {{ $item->is_pinned ? 'pinned' : '' }}"
+                                                    onclick="togglePin({{ $item->id }})"
+                                                    title="{{ $item->is_pinned ? 'Unpin' : 'Pin to Dashboard' }}">
+                                                    📌
+                                                </button>
                                                 <button class="icon-btn edit"
                                                     onclick="window.location.href='/project_manage/{{ $item->id }}/edit'"
                                                     title="Edit">✏️</button>
@@ -161,17 +166,134 @@
             border: 1px solid #c3e6cb;
         }
 
-        .filter-controls {
+        /* Compact Filter Bar */
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            gap: 15px;
         }
 
-        .my-items-toggle input[type="checkbox"] {
+        .filter-left {
+            flex: 0 0 auto;
+        }
+
+        .compact-select {
+            padding: 8px 32px 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .filter-right {
+            flex: 0 0 auto;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            display: none;
+        }
+
+        .toggle-slider {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #cbd5e0;
+            border-radius: 24px;
+            transition: background 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
             width: 18px;
             height: 18px;
-            cursor: pointer;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: #4299e1;
+        }
+
+        .toggle-switch input:checked+.toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        /* Pin Button */
+        .icon-btn.pin {
+            opacity: 0.4;
+            transition: all 0.2s;
+        }
+
+        .icon-btn.pin:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .icon-btn.pin.pinned {
+            opacity: 1;
+            color: #f56565;
+            animation: pinPulse 0.6s ease-in-out;
+        }
+
+        @keyframes pinPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .compact-select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .filter-right {
+                width: 100%;
+            }
+
+            .toggle-switch {
+                justify-content: space-between;
+            }
         }
     </style>
 @endsection

@@ -234,4 +234,31 @@ class ProjectManageController extends Controller
 
         return redirect()->back()->with('success', 'Attachment deleted successfully!');
     }
+
+    public function togglePin($id)
+    {
+        $item = ProjectItem::findOrFail($id);
+
+        // Only creator can pin/unpin
+        if ($item->created_by != Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // If pinning this item, unpin all other items first
+        if (!$item->is_pinned) {
+            ProjectItem::where('created_by', Auth::id())
+                ->where('is_pinned', true)
+                ->update(['is_pinned' => false]);
+        }
+
+        // Toggle pin status
+        $item->is_pinned = !$item->is_pinned;
+        $item->save();
+
+        return response()->json([
+            'success' => true,
+            'is_pinned' => $item->is_pinned,
+            'message' => $item->is_pinned ? 'Item pinned to dashboard' : 'Item unpinned'
+        ]);
+    }
 }

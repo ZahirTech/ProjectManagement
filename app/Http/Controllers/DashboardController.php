@@ -55,11 +55,20 @@ class DashboardController extends Controller
             'completed' => $this->calculateTrend($stats['completed'], $lastMonthStats['completed']),
         ];
 
-        // Get last pinned status (most recent item)
+        // Get pinned item (only one item can be pinned at a time)
         $lastStatus = ProjectItem::accessibleBy($userId)
             ->with(['project', 'attachments'])
+            ->where('is_pinned', true)
             ->latest('updated_at')
             ->first();
+
+        // If no pinned item, show the most recently updated item
+        if (!$lastStatus) {
+            $lastStatus = ProjectItem::accessibleBy($userId)
+                ->with(['project', 'attachments'])
+                ->latest('updated_at')
+                ->first();
+        }
 
         // Get recent updates
         $recentUpdates = ProjectItem::accessibleBy($userId)

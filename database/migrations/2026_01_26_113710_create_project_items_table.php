@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('due_date')->nullable();
             $table->integer('progress')->default(0);
             $table->boolean('is_private')->default(false);
+            $table->boolean('is_pinned')->default(false);
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('completed_at')->nullable();
@@ -30,6 +31,7 @@ return new class extends Migration
             $table->index(['project_id', 'status']);
             $table->index('assigned_to');
             $table->index('is_private');
+            $table->index('is_pinned');
         });
     }
 

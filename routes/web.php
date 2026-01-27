@@ -20,6 +20,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::patch('project_manage/{id}/status', [ProjectManageController::class, 'updateStatus'])
         ->name('projectmng.updateStatus');
 
+    // Pin/Unpin Item (AJAX)
+    Route::patch('project_manage/{id}/pin', [ProjectManageController::class, 'togglePin'])
+        ->name('projectmng.togglePin');
+
     // Attachment Routes
     Route::post('project_manage/{id}/attachments', [ProjectManageController::class, 'uploadAttachment'])
         ->name('projectmng.uploadAttachment');
