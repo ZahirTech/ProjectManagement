@@ -70,36 +70,55 @@ class ProjectManageController extends Controller
 
     public function list(Request $request)
     {
-        $query = ProjectItem::with(['project', 'assignedUser', 'attachments'])
-            ->accessibleBy(Auth::id());
+        $projects = Project::where('status', 'active')->get();
 
-        // Filter by project
+        // Get counts for tabs with filters applied
+        $baseQuery = ProjectItem::accessibleBy(Auth::id());
+
+        // Apply project filter to counts
+        if ($request->has('project_id') && $request->project_id != 'all') {
+            $baseQuery = $baseQuery->where('project_id', $request->project_id);
+        }
+
+        // Apply my items filter to counts
+        if ($request->has('my_items') && $request->my_items) {
+            $baseQuery = $baseQuery->assignedTo(Auth::id());
+        }
+
+        // Get counts for each status
+        $counts = [
+            'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
+            'processing' => (clone $baseQuery)->where('status', 'processing')->count(),
+            'completed' => (clone $baseQuery)->where('status', 'completed')->count(),
+            'on-hold' => (clone $baseQuery)->where('status', 'on-hold')->count(),
+        ];
+
+        return view('pages.projects.list', compact('projects', 'counts'));
+    }
+
+    public function getTabItems(Request $request, $status)
+    {
+        $query = ProjectItem::with(['project', 'assignedUser', 'attachments'])
+            ->accessibleBy(Auth::id())
+            ->where('status', $status);
+
+        // Apply project filter
         if ($request->has('project_id') && $request->project_id != 'all') {
             $query->where('project_id', $request->project_id);
         }
 
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Show only assigned to me
+        // Apply my items filter
         if ($request->has('my_items') && $request->my_items) {
             $query->assignedTo(Auth::id());
         }
 
-        $items = $query->latest()->paginate(15);
-        $projects = Project::where('status', 'active')->get();
+        $items = $query->latest()->get();
 
-        // Get counts for tabs
-        $counts = [
-            'pending' => ProjectItem::accessibleBy(Auth::id())->where('status', 'pending')->count(),
-            'processing' => ProjectItem::accessibleBy(Auth::id())->where('status', 'processing')->count(),
-            'completed' => ProjectItem::accessibleBy(Auth::id())->where('status', 'completed')->count(),
-            'on-hold' => ProjectItem::accessibleBy(Auth::id())->where('status', 'on-hold')->count(),
-        ];
-
-        return view('pages.projects.list', compact('items', 'projects', 'counts'));
+        return response()->json([
+            'success' => true,
+            'items' => $items,
+            'count' => $items->count()
+        ]);
     }
 
     public function show($id)

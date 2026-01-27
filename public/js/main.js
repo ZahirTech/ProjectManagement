@@ -54,7 +54,7 @@ function showPage(pageName) {
     }
 }
 
-// Tab Switching Function
+// Tab Switching Function with AJAX Loading
 function switchTab(event, tabName) {
     // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(tab => {
@@ -70,22 +70,158 @@ function switchTab(event, tabName) {
     const tabElement = document.getElementById(tabName);
     if (tabElement) {
         tabElement.classList.add('active');
+
+        // Load tab content if not already loaded
+        if (!tabElement.dataset.loaded || tabElement.dataset.loaded === 'false') {
+            loadTabContent(tabName);
+        }
     }
 
     // Add active class to clicked button
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
+}
 
-    // Update URL parameter for filtering
-    const url = new URL(window.location);
-    url.searchParams.set('status', tabName);
-    window.history.pushState({}, '', url);
+// Load tab content via AJAX
+function loadTabContent(status) {
+    const tabElement = document.getElementById(status);
+    if (!tabElement) return;
+
+    // Show loading
+    tabElement.innerHTML = '<div class="tab-loading">Loading...</div>';
+
+    // Get current filters
+    const projectId = document.getElementById('listProjectSelect')?.value || 'all';
+    const myItems = document.getElementById('myItemsToggle')?.checked ? '1' : '0';
+
+    // Build URL with filters
+    const url = new URL(`/project_manage/tab/${status}`, window.location.origin);
+    url.searchParams.set('project_id', projectId);
+    url.searchParams.set('my_items', myItems);
+
+    // Fetch tab content
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTabContent(tabElement, data.items, status);
+                tabElement.dataset.loaded = 'true';
+            } else {
+                tabElement.innerHTML = '<div class="empty-state"><p>Error loading items</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading tab:', error);
+            tabElement.innerHTML = '<div class="empty-state"><p>Error loading items</p></div>';
+        });
+}
+
+// Render tab content
+function renderTabContent(tabElement, items, status) {
+    if (!items || items.length === 0) {
+        tabElement.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>No Items Found</h3>
+                <p>There are no items with "${status.charAt(0).toUpperCase() + status.slice(1)}" status</p>
+            </div>
+        `;
+        return;
+    }
+
+    const userId = document.querySelector('meta[name="user-id"]')?.content;
+
+    let tableHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Due Date</th>
+                    <th>Assigned To</th>
+                    <th>Attachments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    items.forEach(item => {
+        const itemId = String(item.id).padStart(3, '0');
+        const dueDate = item.due_date || '-';
+        const assignedTo = item.assigned_user ? item.assigned_user.name : 'Not Assigned';
+        const attachmentCount = item.attachments ? item.attachments.length : 0;
+        const isCreator = userId && item.created_by == userId;
+
+        tableHTML += `
+            <tr>
+                <td>#${itemId}</td>
+                <td>
+                    ${item.title}
+                    ${item.is_private ? '<span style="color: #f56565; font-size: 12px;">🔒 Private</span>' : ''}
+                </td>
+                <td>${item.project.name}</td>
+                <td>
+                    <select class="status-select status-${item.status}"
+                        onchange="updateStatus(this, ${item.id})"
+                        data-old-status="${item.status}">
+                        <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+                        <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+                    </select>
+                </td>
+                <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
+                <td>${dueDate}</td>
+                <td>${assignedTo}</td>
+                <td>
+                    ${attachmentCount > 0
+                ? `<span class="attachment-indicator">📎 ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}</span>`
+                : '-'}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="icon-btn view" onclick="showDetails(${item.id})" title="View Details">👁️</button>
+                        ${isCreator ? `
+                            <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
+                                onclick="togglePin(${item.id})"
+                                title="${item.is_pinned ? 'Unpin' : 'Pin to Dashboard'}">
+                                📌
+                            </button>
+                            <button class="icon-btn edit"
+                                onclick="window.location.href='/project_manage/${item.id}/edit'"
+                                title="Edit">✏️</button>
+                            <button class="icon-btn delete"
+                                onclick="deleteItem(${item.id})"
+                                title="Delete">🗑️</button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `
+            </tbody>
+        </table>
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Showing ${items.length} of ${items.length} items
+            </div>
+        </div>
+    `;
+
+    tabElement.innerHTML = tableHTML;
 }
 
 // Status Update Function - Updated with AJAX
 function updateStatus(selectElement, itemId) {
     const newStatus = selectElement.value;
+    const oldStatus = selectElement.dataset.oldStatus || selectElement.getAttribute('data-old-status');
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
 
     if (!csrfToken) {
@@ -112,8 +248,17 @@ function updateStatus(selectElement, itemId) {
             if (data.success) {
                 showNotification('Status updated successfully!', 'success');
 
-                // Reload page after short delay to update counts
-                setTimeout(() => location.reload(), 1000);
+                // Get the row element
+                const row = selectElement.closest('tr');
+
+                // Update tab counts
+                updateTabCounts(oldStatus, newStatus);
+
+                // Move the row to correct tab content
+                moveRowToTab(row, itemId, oldStatus, newStatus);
+
+                // Store new status
+                selectElement.dataset.oldStatus = newStatus;
             } else {
                 showNotification('Failed to update status', 'error');
                 // Revert the select element
@@ -126,6 +271,99 @@ function updateStatus(selectElement, itemId) {
             // Revert the select element
             location.reload();
         });
+}
+
+// Update tab counts without reloading
+function updateTabCounts(oldStatus, newStatus) {
+    // Decrease old status count
+    if (oldStatus) {
+        const oldBadge = document.getElementById(`badge-${oldStatus}`);
+        if (oldBadge) {
+            const oldCount = parseInt(oldBadge.textContent) || 0;
+            oldBadge.textContent = Math.max(0, oldCount - 1);
+        }
+    }
+
+    // Increase new status count
+    const newBadge = document.getElementById(`badge-${newStatus}`);
+    if (newBadge) {
+        const newCount = parseInt(newBadge.textContent) || 0;
+        newBadge.textContent = newCount + 1;
+    }
+
+    // Mark tabs as not loaded so they reload with fresh data
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        if (tab.id === oldStatus || tab.id === newStatus) {
+            tab.dataset.loaded = 'false';
+        }
+    });
+}
+
+// Move row to the correct tab
+function moveRowToTab(row, itemId, oldStatus, newStatus) {
+    if (!row) return;
+
+    // Just remove the row with fade animation
+    row.style.opacity = '0';
+    setTimeout(() => {
+        row.remove();
+
+        // Check if current tab is now empty
+        const currentTab = document.querySelector('.tab-content.active');
+        if (currentTab) {
+            const tbody = currentTab.querySelector('tbody');
+            if (tbody && tbody.children.length === 0) {
+                // Show empty state
+                const table = currentTab.querySelector('.data-table');
+                if (table) {
+                    table.style.display = 'none';
+                }
+                const paginationContainer = currentTab.querySelector('.pagination-container');
+                if (paginationContainer) {
+                    paginationContainer.style.display = 'none';
+                }
+
+                // Add empty state if not exists
+                if (!currentTab.querySelector('.empty-state')) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No Items Found</h3>
+                        <p>There are no items with this status</p>
+                    `;
+                    currentTab.appendChild(emptyState);
+                }
+            }
+        }
+    }, 300);
+
+    // Mark the new status tab as not loaded so it reloads fresh data when clicked
+    const newTab = document.getElementById(newStatus);
+    if (newTab) {
+        newTab.dataset.loaded = 'false';
+    }
+}
+
+// Attach event listeners to a row
+function attachRowEventListeners(row) {
+    // Re-attach status change listener
+    const statusSelect = row.querySelector('.status-select');
+    if (statusSelect) {
+        // Store current status
+        const currentStatus = statusSelect.value;
+        statusSelect.dataset.oldStatus = currentStatus;
+
+        // Remove old listeners by cloning
+        const newStatusSelect = statusSelect.cloneNode(true);
+        statusSelect.parentNode.replaceChild(newStatusSelect, statusSelect);
+
+        // Add new listener
+        newStatusSelect.addEventListener('change', function () {
+            const itemId = this.getAttribute('onchange').match(/\d+/)[0];
+            updateStatus(this, itemId);
+        });
+    }
 }
 
 // Show notification function
@@ -250,6 +488,15 @@ function toggleAssignment() {
 
 // Document Ready
 document.addEventListener('DOMContentLoaded', function () {
+
+    // Load first tab (pending) on page load
+    loadTabContent('pending');
+    document.getElementById('pending').dataset.loaded = 'true';
+
+    // Initialize status selects with old status tracking
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.dataset.oldStatus = select.value;
+    });
 
     // Initialize private checkbox toggle
     const isPrivateCheckbox = document.getElementById('isPrivateCheckbox');

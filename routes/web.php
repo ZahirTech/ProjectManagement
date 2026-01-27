@@ -12,6 +12,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('create', [ProjectManageController::class, 'create'])->name('projectmng.create');
     Route::post('create', [ProjectManageController::class, 'store'])->name('projectmng.store');
     Route::get('project_manage', [ProjectManageController::class, 'list'])->name('projectmng.list');
+    Route::get('project_manage/tab/{status}', [ProjectManageController::class, 'getTabItems'])->name('projectmng.getTabItems');
     Route::get('project_manage/{id}', [ProjectManageController::class, 'show'])->name('projectmng.show');
     Route::put('project_manage/{id}', [ProjectManageController::class, 'update'])->name('projectmng.update');
     Route::delete('project_manage/{id}', [ProjectManageController::class, 'destroy'])->name('projectmng.destroy');
