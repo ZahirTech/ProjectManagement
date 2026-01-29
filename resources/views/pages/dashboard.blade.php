@@ -81,35 +81,49 @@
             </select>
         </div>
 
-        <!-- Last Project Status (Pinned) -->
-        @if ($lastStatus)
+        <!-- Pinned Items Section -->
+        @if (isset($allPinned) && $allPinned->count() > 0)
             <div class="last-status-section">
                 <div class="last-status-header">
                     <span class="pin-icon">📌</span>
-                    <h2>{{ $lastStatus->is_pinned ? 'Pinned Item' : 'Last Updated Item' }}</h2>
+                    <h2>Pinned Items</h2>
+                    @if (isset($hasMore) && $hasMore && !request('show_all'))
+                        <a href="?show_all=1" class="btn-view-more">View All</a>
+                    @elseif(request('show_all'))
+                        <a href="{{ route('dashboard') }}" class="btn-view-more">Show Less</a>
+                    @endif
                 </div>
-                <div class="last-status-item">
-                    <div class="last-status-content">
-                        <div class="last-status-title">{{ $lastStatus->title }}</div>
-                        <div class="last-status-meta">
-                            {{ $lastStatus->project->name }} •
-                            Updated {{ $lastStatus->updated_at->diffForHumans() }} •
-                            <span class="status-badge status-{{ $lastStatus->status }}">
-                                {{ ucfirst($lastStatus->status) }}
-                            </span>
+
+                @foreach ($allPinned as $item)
+                    <div class="last-status-item">
+                        <div class="last-status-content">
+                            <div class="last-status-type">
+                                {{ $item instanceof \App\Models\Note ? '📝 Note' : '✅ Assignment' }}
+                            </div>
+                            <div class="last-status-title">{{ $item->title }}</div>
+                            <div class="last-status-meta">
+                                {{ $item->project->name }} •
+                                Updated {{ $item->updated_at->diffForHumans() }}
+                                @if ($item instanceof \App\Models\ProjectItem)
+                                    • <span class="status-badge status-{{ $item->status }}">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="last-status-actions">
+                            @if ($item instanceof \App\Models\ProjectItem && isset($item->attachments) && $item->attachments->count() > 0)
+                                <span class="attachment-indicator">
+                                    📎 {{ $item->attachments->count() }}
+                                    file{{ $item->attachments->count() > 1 ? 's' : '' }}
+                                </span>
+                            @endif
+                            <button class="icon-btn view"
+                                onclick="window.location.href='{{ $item instanceof \App\Models\Note ? route('notes.show', $item->id) : route('projectmng.show', $item->id) }}'"
+                                title="View Details">👁️</button>
                         </div>
                     </div>
-                    <div class="last-status-actions">
-                        @if ($lastStatus->attachments->count() > 0)
-                            <span class="attachment-indicator">
-                                📎 {{ $lastStatus->attachments->count() }}
-                                file{{ $lastStatus->attachments->count() > 1 ? 's' : '' }}
-                            </span>
-                        @endif
-                        <button class="icon-btn view" onclick="showDetails({{ $lastStatus->id }})"
-                            title="View Details">👁️</button>
-                    </div>
-                </div>
+                @endforeach
             </div>
         @endif
 
@@ -117,7 +131,7 @@
         <div class="recent-section">
             <h2>Recent Project Updates</h2>
 
-            @if ($recentUpdates->count() > 0)
+            @if (isset($recentUpdates) && $recentUpdates->count() > 0)
                 @foreach ($recentUpdates as $update)
                     <div class="timeline-item">
                         <div class="timeline-content">
@@ -136,7 +150,7 @@
                             </div>
                         </div>
                         <div class="timeline-actions">
-                            @if ($update->attachments->count() > 0)
+                            @if (isset($update->attachments) && $update->attachments->count() > 0)
                                 <span class="attachment-indicator">
                                     📎 {{ $update->attachments->count() }}
                                     file{{ $update->attachments->count() > 1 ? 's' : '' }}
@@ -156,4 +170,36 @@
             @endif
         </div>
     </div>
+
+    <style>
+        .last-status-type {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .btn-view-more {
+            font-size: 14px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .btn-view-more:hover {
+            color: #5a67d8;
+            text-decoration: underline;
+        }
+
+        .last-status-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .last-status-header h2 {
+            flex: 1;
+        }
+    </style>
 @endsection

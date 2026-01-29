@@ -55,24 +55,38 @@ class DashboardController extends Controller
             'completed' => $this->calculateTrend($stats['completed'], $lastMonthStats['completed']),
         ];
 
-        // Get pinned item (only one item can be pinned at a time)
-        $lastStatus = ProjectItem::accessibleBy($userId)
+        // Get pinned items (both assignments and notes)
+        // Default: show 2, expandable to 5
+        $limit = $request->get('show_all') ? 5 : 2;
+
+        // Get pinned assignments
+        $pinnedAssignments = ProjectItem::accessibleBy($userId)
             ->with(['project', 'attachments'])
             ->where('is_pinned', true)
             ->latest('updated_at')
-            ->first();
+            ->get();
 
-        // If no pinned item, show the most recently updated item
-        if (!$lastStatus) {
-            $lastStatus = ProjectItem::accessibleBy($userId)
-                ->with(['project', 'attachments'])
-                ->latest('updated_at')
-                ->first();
-        }
+        // Get pinned notes
+        $pinnedNotes = \App\Models\Note::accessibleBy($userId)
+            ->with(['project'])
+            ->where('is_pinned', true)
+            ->latest('updated_at')
+            ->get();
 
-        // Get recent updates
+        // Merge and sort by updated_at
+        $allPinned = $pinnedAssignments->merge($pinnedNotes)
+            ->sortByDesc('updated_at')
+            ->take($limit);
+
+        // Check if there are more pinned items
+        $totalPinned = $pinnedAssignments->count() + $pinnedNotes->count();
+        $hasMore = $totalPinned > 2;
+
+        // Get recent updates (excluding pinned items)
+        $pinnedIds = $pinnedAssignments->pluck('id')->toArray();
         $recentUpdates = ProjectItem::accessibleBy($userId)
             ->with(['project', 'attachments'])
+            ->whereNotIn('id', $pinnedIds)
             ->latest('updated_at')
             ->take(5)
             ->get();
@@ -88,7 +102,8 @@ class DashboardController extends Controller
         return view('pages.dashboard', compact(
             'stats',
             'trends',
-            'lastStatus',
+            'allPinned',
+            'hasMore',
             'recentUpdates',
             'projects'
         ));

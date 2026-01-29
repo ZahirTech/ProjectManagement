@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotesController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectListController;
 use App\Http\Controllers\ProjectManageController;
@@ -27,6 +28,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('project_manage/{id}/edit', [ProjectManageController::class, 'edit'])->name('projectmng.edit');
     Route::put('project_manage/{id}', [ProjectManageController::class, 'update'])->name('projectmng.update');
     Route::delete('project_manage/{id}', [ProjectManageController::class, 'destroy'])->name('projectmng.destroy');
+    // Notes Routes
+    Route::get('notes', [NotesController::class, 'index'])->name('notes.index');
+    Route::get('notes/create', [NotesController::class, 'create'])->name('notes.create');
+    Route::post('notes', [NotesController::class, 'store'])->name('notes.store');
+    Route::get('notes/{id}', [NotesController::class, 'show'])->name('notes.show');
+    Route::get('notes/{id}/edit', [NotesController::class, 'edit'])->name('notes.edit');
+    Route::put('notes/{id}', [NotesController::class, 'update'])->name('notes.update');
+    Route::delete('notes/{id}', [NotesController::class, 'destroy'])->name('notes.destroy');
+    Route::patch('notes/{id}/pin', [NotesController::class, 'togglePin'])->name('notes.togglePin');
 
     // Status Update (AJAX)
     Route::patch('project_manage/{id}/status', [ProjectManageController::class, 'updateStatus'])
