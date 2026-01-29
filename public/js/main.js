@@ -152,7 +152,14 @@ function renderTabContent(tabElement, items, status) {
 
     items.forEach(item => {
         const itemId = String(item.id).padStart(3, '0');
-        const dueDate = item.due_date || '-';
+        const dueDate = item.due_date
+            ? new Intl.DateTimeFormat('en-US', {
+                month: 'long',
+                day: '2-digit',
+                year: 'numeric',
+                timeZone: 'UTC'
+            }).format(new Date(item.due_date))
+            : 'No due date';
         const assignedTo = item.assigned_user ? item.assigned_user.name : 'Not Assigned';
         const attachmentCount = item.attachments ? item.attachments.length : 0;
         const isCreator = userId && item.created_by == userId;
@@ -411,15 +418,17 @@ function deleteItem(itemId) {
         fetch(`/project_manage/${itemId}`, {
             method: 'DELETE',
             headers: {
+                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken.getAttribute('content')
             }
         })
-            .then(response => {
-                if (response.ok) {
-                    showNotification('Item deleted successfully!', 'success');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Item deleted successfully!', 'success');
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    showNotification('Failed to delete item', 'error');
+                    showNotification(data.message || 'Failed to delete item', 'error');
                 }
             })
             .catch(error => {
@@ -443,15 +452,17 @@ function deleteAttachment(attachmentId) {
         fetch(`/attachments/${attachmentId}`, {
             method: 'DELETE',
             headers: {
+                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken.getAttribute('content')
             }
         })
-            .then(response => {
-                if (response.ok) {
-                    showNotification('Attachment deleted successfully!', 'success');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Attachment deleted successfully!', 'success');
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    showNotification('Failed to delete attachment', 'error');
+                    showNotification(data.message || 'Failed to delete attachment', 'error');
                 }
             })
             .catch(error => {

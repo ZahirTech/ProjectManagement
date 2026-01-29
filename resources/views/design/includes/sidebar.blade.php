@@ -21,16 +21,22 @@
                 </li>
             </a>
             {{-- <li class="nav-item" onclick="showPage('create')"> --}}
-            <a class="link_remove" href="{{ route('projectmng.create') }}">
+            {{-- <a class="link_remove" href="{{ route('projectmng.create') }}">
                 <li class="nav-item {{ request()->routeIs('projectmng.create') ? 'active' : '' }}">
                     <span class="nav-icon">➕</span>
                     <span>Create New</span>
                 </li>
-            </a>
+            </a> --}}
             <a class="link_remove" href="{{ route('projectmng.list') }}">
                 <li class="nav-item {{ request()->routeIs('projectmng.list') ? 'active' : '' }}">
                     <span class="nav-icon">📋</span>
-                    <span>All Items</span>
+                    <span>Assignments & Notes</span>
+                </li>
+            </a>
+            <a class="link_remove" href="{{ route('projects.index') }}">
+                <li class="nav-item {{ request()->routeIs('projects.index') ? 'active' : '' }}">
+                    <span class="nav-icon">📋</span>
+                    <span>Project List</span>
                 </li>
             </a>
         </ul>

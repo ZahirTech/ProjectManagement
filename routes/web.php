@@ -2,11 +2,21 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectListController;
 use App\Http\Controllers\ProjectManageController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Project Routes
+    Route::get('projects', [ProjectListController::class, 'index'])->name('projects.index');
+    Route::get('projects/create', [ProjectListController::class, 'create'])->name('projects.create');
+    Route::post('projects', [ProjectListController::class, 'store'])->name('projects.store');
+    Route::get('projects/{id}/edit', [ProjectListController::class, 'edit'])->name('projects.edit');
+    Route::put('projects/{id}', [ProjectListController::class, 'update'])->name('projects.update');
+    Route::patch('projects/{id}/status', [ProjectListController::class, 'toggleStatus'])->name('projects.toggleStatus');
 
     // Project Item Routes
     Route::get('create', [ProjectManageController::class, 'create'])->name('projectmng.create');
@@ -14,6 +24,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('project_manage', [ProjectManageController::class, 'list'])->name('projectmng.list');
     Route::get('project_manage/tab/{status}', [ProjectManageController::class, 'getTabItems'])->name('projectmng.getTabItems');
     Route::get('project_manage/{id}', [ProjectManageController::class, 'show'])->name('projectmng.show');
+    Route::get('project_manage/{id}/edit', [ProjectManageController::class, 'edit'])->name('projectmng.edit');
     Route::put('project_manage/{id}', [ProjectManageController::class, 'update'])->name('projectmng.update');
     Route::delete('project_manage/{id}', [ProjectManageController::class, 'destroy'])->name('projectmng.destroy');
 

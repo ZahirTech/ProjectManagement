@@ -18,7 +18,7 @@ class ProjectManageController extends Controller
         $projects = Project::where('status', 'active')->get();
         $users = User::select('id', 'name', 'email')->get();
 
-        return view('pages.projects.create', compact('projects', 'users'));
+        return view('pages.projects.items.create', compact('projects', 'users'));
     }
 
     public function store(Request $request)
@@ -93,7 +93,7 @@ class ProjectManageController extends Controller
             'on-hold' => (clone $baseQuery)->where('status', 'on-hold')->count(),
         ];
 
-        return view('pages.projects.list', compact('projects', 'counts'));
+        return view('pages.projects.items.list', compact('projects', 'counts'));
     }
 
     public function getTabItems(Request $request, $status)
@@ -131,7 +131,22 @@ class ProjectManageController extends Controller
             abort(403, 'You do not have permission to view this item.');
         }
 
-        return view('pages.projects.show', compact('item'));
+        return view('pages.projects.items.show', compact('item'));
+    }
+
+    public function edit($id)
+    {
+        $item = ProjectItem::with(['project', 'attachments'])->findOrFail($id);
+
+        // Check access - only creator can edit
+        if ($item->created_by != Auth::id()) {
+            abort(403, 'You do not have permission to edit this item.');
+        }
+
+        $projects = Project::where('status', 'active')->get();
+        $users = User::select('id', 'name', 'email')->get();
+
+        return view('pages.projects.items.edit', compact('item', 'projects', 'users'));
     }
 
     public function update(Request $request, $id)
@@ -139,12 +154,12 @@ class ProjectManageController extends Controller
         $item = ProjectItem::findOrFail($id);
 
         // Check access
-        if (!$item->canView(Auth::id())) {
+        if ($item->created_by != Auth::id()) {
             abort(403, 'You do not have permission to edit this item.');
         }
 
         $validated = $request->validate([
-            'project_id' => 'required|exists:projects,id',
+            // 'project_id' => 'required|exists:projects,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:pending,processing,completed,on-hold',
@@ -169,7 +184,8 @@ class ProjectManageController extends Controller
 
         $item->update($validated);
 
-        return redirect()->back()->with('success', 'Item updated successfully!');
+        return redirect()->route('projectmng.show', $item->id)
+            ->with('success', 'Item updated successfully!');
     }
 
     public function updateStatus(Request $request, $id)
@@ -199,13 +215,19 @@ class ProjectManageController extends Controller
 
         // Only creator can delete
         if ($item->created_by != Auth::id()) {
-            abort(403, 'You do not have permission to delete this item.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Delete associated attachments from storage
+        foreach ($item->attachments as $attachment) {
+            if (Storage::disk('public')->exists($attachment->file_path)) {
+                Storage::disk('public')->delete($attachment->file_path);
+            }
         }
 
         $item->delete();
 
-        return redirect()->route('projectmng.list')
-            ->with('success', 'Item deleted successfully!');
+        return response()->json(['success' => true, 'message' => 'Item deleted successfully']);
     }
 
     public function uploadAttachment(Request $request, $id)
@@ -246,12 +268,17 @@ class ProjectManageController extends Controller
         $item = $attachment->projectItem;
 
         if (!$item->canView(Auth::id())) {
-            abort(403, 'Unauthorized');
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Delete file from storage
+        if (Storage::disk('public')->exists($attachment->file_path)) {
+            Storage::disk('public')->delete($attachment->file_path);
         }
 
         $attachment->delete();
 
-        return redirect()->back()->with('success', 'Attachment deleted successfully!');
+        return response()->json(['success' => true, 'message' => 'Attachment deleted successfully']);
     }
 
     public function togglePin($id)

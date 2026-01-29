@@ -4,7 +4,13 @@
     <!-- LIST PAGE -->
     <div id="list" class="page">
         <div class="page-header">
-            <h1>All Project Items</h1>
+            <h1>Assignment/Note List</h1>
+
+            <div class="header-actions">
+                <a href="{{ route('projectmng.create') }}" class="btn btn-primary">
+                    ➕  Create New Assignment
+                </a>
+            </div>
         </div>
 
         @include('design.includes.alert')
