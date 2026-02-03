@@ -5,43 +5,63 @@ namespace Database\Seeders;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class ProjectSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::first(); // Get first user or create one
 
-        if (!$user) {
-            $user = User::create([
+        // Create Admin
+        User::updateOrCreate(
+            ['email' => 'admin@zahirtech.com'],
+            [
                 'name' => 'Admin User',
-                'email' => 'admin@example.com',
-                'password' => bcrypt('password'),
-            ]);
-        }
+                'role' => 'admin',
+                'password' => Hash::make('ThinkBig@2026'), // Change password if needed
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Create Superadmin
+        $user = User::updateOrCreate(
+            ['email' => 'superadmin@zahirtech.com'],
+            [
+                'name' => 'Super Admin User',
+                'role' => 'superadmin',
+                'password' => Hash::make('ThinkBig@2026'), // Change password if needed
+                'email_verified_at' => now(),
+            ]
+        );
 
         $projects = [
             [
-                'name' => 'Website Redesign',
-                'description' => 'Complete redesign of the company website with modern UI/UX',
+                'name' => 'Zahir Tech',
+                'description' => 'ZahirTech is a leading technology solutions provider specializing in web development, mobile apps, cloud solutions, and AI-powered systems. We help businesses transform digitally with innovative technology solutions.',
                 'status' => 'active',
                 'created_by' => $user->id,
             ],
             [
-                'name' => 'Mobile App Development',
-                'description' => 'Development of iOS and Android mobile applications',
+                'name' => 'Zahir Food',
+                'description' => 'All-in-one multi-restaurant management platform: Admins can centrally manage restaurants, menus, customers, delivery staff, and promotions. Customers browse nearby eateries, order food, or register as vendors or delivery partners.',
                 'status' => 'active',
                 'created_by' => $user->id,
             ],
             [
-                'name' => 'Marketing Campaign',
-                'description' => 'Q4 marketing campaign planning and execution',
+                'name' => 'Door Delivery',
+                'description' => 'All-in-one multi-restaurant management platform: Admins can centrally manage restaurants, menus, customers, delivery staff, and promotions. Customers browse nearby eateries, order food, or register as vendors or delivery partners.',
                 'status' => 'active',
                 'created_by' => $user->id,
             ],
             [
-                'name' => 'Database Migration',
-                'description' => 'Migration from legacy database to new cloud infrastructure',
+                'name' => 'Doo Attend',
+                'description' => 'All-in-one app for modern teams. Uses facial recognition to record employee attendance, track check-ins/check-outs, assign and monitor tasks, manage schedules, and handle leave requests with real-time progress tracking.',
+                'status' => 'active',
+                'created_by' => $user->id,
+            ],
+            [
+                'name' => 'Doo POS',
+                'description' => 'Powerful cloud-based point-of-sale system built for restaurants and retail businesses. Streamlines sales, billing, and payments while helping you track inventory, manage staff, and engage with customers in real time.',
                 'status' => 'active',
                 'created_by' => $user->id,
             ],
