@@ -670,7 +670,7 @@ function removeFileItem(button, index) {
     // For better UX, you might want to track files separately
 }
 
-// Toggle Pin - Pin/Unpin item to dashboard
+// Toggle Pin - Pin/Unpin item to dashboard (Now supports multiple pins)
 function togglePin(itemId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
 
@@ -704,10 +704,6 @@ function togglePin(itemId) {
                             btn.classList.remove('pinned');
                             btn.title = 'Pin to Dashboard';
                         }
-                    } else {
-                        // Unpin all other buttons since only one can be pinned
-                        btn.classList.remove('pinned');
-                        btn.title = 'Pin to Dashboard';
                     }
                 });
             } else {
@@ -718,4 +714,82 @@ function togglePin(itemId) {
             console.error('Error:', error);
             showNotification('An error occurred', 'error');
         });
+}
+
+// Toggle Note Pin - Pin/Unpin note to dashboard (supports multiple pins)
+function toggleNotePin(noteId) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        alert('Error: CSRF token not found');
+        return;
+    }
+
+    fetch(`/notes/${noteId}/pin`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken.getAttribute('content')
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+
+                // Update the pin button appearance
+                const pinButtons = document.querySelectorAll('.icon-btn.pin');
+                pinButtons.forEach(btn => {
+                    const btnNoteId = btn.getAttribute('onclick').match(/\d+/)[0];
+                    if (btnNoteId == noteId) {
+                        if (data.is_pinned) {
+                            btn.classList.add('pinned');
+                            btn.title = 'Unpin';
+                        } else {
+                            btn.classList.remove('pinned');
+                            btn.title = 'Pin to Dashboard';
+                        }
+                    }
+                });
+            } else {
+                showNotification('Failed to update pin status', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred', 'error');
+        });
+}
+
+// Delete Note
+function deleteNote(noteId) {
+    if (confirm('Are you sure you want to delete this note?')) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            alert('Error: CSRF token not found');
+            return;
+        }
+
+        fetch(`/notes/${noteId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content')
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Note deleted successfully!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('Failed to delete note', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('An error occurred', 'error');
+            });
+    }
 }

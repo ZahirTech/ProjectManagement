@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectItem;
+use App\Models\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,15 +15,15 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // Get accessible items for current user
-        $accessibleItems = ProjectItem::accessibleBy($userId);
+        // Get project filter value FIRST
+        $projectId = $request->get('project_id', 'all');
 
-        // Get stats
+        // Get stats - using fresh queries each time
         $stats = [
-            'total' => $accessibleItems->count(),
-            'pending' => $accessibleItems->where('status', 'pending')->count(),
-            'processing' => $accessibleItems->where('status', 'processing')->count(),
-            'completed' => $accessibleItems->where('status', 'completed')->count(),
+            'total' => ProjectItem::accessibleBy($userId)->count(),
+            'pending' => ProjectItem::accessibleBy($userId)->where('status', 'pending')->count(),
+            'processing' => ProjectItem::accessibleBy($userId)->where('status', 'processing')->count(),
+            'completed' => ProjectItem::accessibleBy($userId)->where('status', 'completed')->count(),
         ];
 
         // Get last month stats for comparison
@@ -55,57 +56,61 @@ class DashboardController extends Controller
             'completed' => $this->calculateTrend($stats['completed'], $lastMonthStats['completed']),
         ];
 
-        // Get pinned items (both assignments and notes)
-        // Default: show 2, expandable to 5
-        $limit = $request->get('show_all') ? 5 : 2;
-
-        // Get pinned assignments
+        // Get ALL pinned assignments (no project filter on pinned items)
         $pinnedAssignments = ProjectItem::accessibleBy($userId)
             ->with(['project', 'attachments'])
             ->where('is_pinned', true)
             ->latest('updated_at')
             ->get();
 
-        // Get pinned notes
-        $pinnedNotes = \App\Models\Note::accessibleBy($userId)
+        // Get ALL pinned notes (no project filter on pinned items)
+        $pinnedNotes = Note::accessibleBy($userId)
             ->with(['project'])
             ->where('is_pinned', true)
             ->latest('updated_at')
             ->get();
 
-        // Merge and sort by updated_at
-        $allPinned = $pinnedAssignments->merge($pinnedNotes)
+        // Merge and sort all pinned items by updated_at
+        $allPinnedItems = collect([])
+            ->merge($pinnedAssignments)
+            ->merge($pinnedNotes)
             ->sortByDesc('updated_at')
-            ->take($limit);
+            ->values();
 
-        // Check if there are more pinned items
-        $totalPinned = $pinnedAssignments->count() + $pinnedNotes->count();
-        $hasMore = $totalPinned > 2;
+        $totalPinned = $allPinnedItems->count();
 
-        // Get recent updates (excluding pinned items)
-        $pinnedIds = $pinnedAssignments->pluck('id')->toArray();
-        $recentUpdates = ProjectItem::accessibleBy($userId)
-            ->with(['project', 'attachments'])
-            ->whereNotIn('id', $pinnedIds)
-            ->latest('updated_at')
-            ->take(5)
-            ->get();
+        // Build recent updates query - DON'T EXCLUDE PINNED ITEMS
+        $recentQuery = ProjectItem::query()
+            ->where(function ($query) use ($userId) {
+                $query->where('created_by', $userId)
+                    ->orWhere('assigned_to', $userId)
+                    ->orWhere('is_private', false);
+            })
+            ->with(['project', 'attachments']);
 
-        // Filter by project if requested
-        $projectId = $request->get('project_id', 'all');
-        if ($projectId != 'all') {
-            $recentUpdates = $recentUpdates->where('project_id', $projectId);
+        // Apply project filter if selected
+        if ($projectId && $projectId != 'all') {
+            $recentQuery->where('project_id', $projectId);
         }
 
+        // Get 5 most recent items ordered by updated_at
+        // REMOVED: whereNotIn for pinned items - they can appear in both sections
+        $recentUpdates = $recentQuery
+            ->latest('updated_at')
+            ->limit(5)
+            ->get();
+
+        // Get all active projects for the dropdown
         $projects = Project::where('status', 'active')->get();
 
         return view('pages.dashboard', compact(
             'stats',
             'trends',
-            'allPinned',
-            'hasMore',
+            'allPinnedItems',
+            'totalPinned',
             'recentUpdates',
-            'projects'
+            'projects',
+            'projectId'
         ));
     }
 

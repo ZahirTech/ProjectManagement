@@ -290,14 +290,7 @@ class ProjectManageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // If pinning this item, unpin all other items first
-        if (!$item->is_pinned) {
-            ProjectItem::where('created_by', Auth::id())
-                ->where('is_pinned', true)
-                ->update(['is_pinned' => false]);
-        }
-
-        // Toggle pin status
+        // Toggle pin status (allow multiple pins)
         $item->is_pinned = !$item->is_pinned;
         $item->save();
 

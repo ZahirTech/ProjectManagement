@@ -8,6 +8,7 @@
     <meta name="user-id" content="{{ auth()->id() }}">
     <title>Project Management System</title>
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard_pin.css') }}">
 </head>
 
 <body>
@@ -22,6 +23,7 @@
     </div>
 
     <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/dashboard_pin.js') }}"></script>
     <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
