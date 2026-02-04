@@ -18,7 +18,7 @@
                 <p>Streamline your workflow, collaborate with your team, and manage projects efficiently with our
                     comprehensive project management solution.</p>
 
-                <div class="feature-list">
+                {{-- <div class="feature-list">
                     <div class="feature-item">
                         <svg fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -51,7 +51,7 @@
                         </svg>
                         <span>Secure & Reliable</span>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
 
