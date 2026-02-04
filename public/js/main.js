@@ -117,114 +117,6 @@ function loadTabContent(status) {
         });
 }
 
-// Render tab content
-// function renderTabContent(tabElement, items, status) {
-//     if (!items || items.length === 0) {
-//         tabElement.innerHTML = `
-//             <div class="empty-state">
-//                 <div class="empty-state-icon">📋</div>
-//                 <h3>No Items Found</h3>
-//                 <p>There are no items with "${status.charAt(0).toUpperCase() + status.slice(1)}" status</p>
-//             </div>
-//         `;
-//         return;
-//     }
-
-//     const userId = document.querySelector('meta[name="user-id"]')?.content;
-
-//     let tableHTML = `
-//         <table class="data-table">
-//             <thead>
-//                 <tr>
-//                     <th>ID</th>
-//                     <th>Title</th>
-//                     <th>Project</th>
-//                     <th>Status</th>
-//                     <th>Priority</th>
-//                     <th>Due Date</th>
-//                     <th>Assigned To</th>
-//                     <th>Attachments</th>
-//                     <th>Actions</th>
-//                 </tr>
-//             </thead>
-//             <tbody>
-//     `;
-
-//     items.forEach(item => {
-//         const itemId = String(item.id).padStart(3, '0');
-
-//         const dueDate = item.due_date
-//             ? new Date(item.due_date).toLocaleDateString('en-US', {
-//                 month: 'short',
-//                 day: '2-digit',
-//                 year: 'numeric'
-//             })
-//             : '-';
-//         const assignedTo = item.assigned_user ? item.assigned_user.name : 'Not Assigned';
-//         const attachmentCount = item.attachments ? item.attachments.length : 0;
-//         const isCreator = userId && item.created_by == userId;
-
-//         tableHTML += `
-//             <tr>
-//                 <td>#${itemId}</td>
-//                 <td>
-//                     ${item.title}
-//                     ${item.is_private ? '<span style="color: #f56565; font-size: 12px;">🔒 Private</span>' : ''}
-//                 </td>
-//                 <td>${item.project.name}</td>
-//                 <td>
-//                     <select class="status-select status-${item.status}"
-//                         onchange="updateStatus(this, ${item.id})"
-//                         data-old-status="${item.status}">
-//                         <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
-//                         <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
-//                         <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
-//                         <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
-//                     </select>
-//                 </td>
-//                 <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
-//                 <td>${dueDate}</td>
-//                 <td>${assignedTo}</td>
-//                 <td>
-//                     ${attachmentCount > 0
-//                 ? `<span class="attachment-indicator">📎 ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}</span>`
-//                 : '-'}
-//                 </td>
-//                 <td>
-//                     <div class="action-buttons">
-//                         <button class="icon-btn view" onclick="showDetails(${item.id})" title="View Details">👁️</button>
-//                         ${isCreator ? `
-//                             <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
-//                                 onclick="togglePin(${item.id})"
-//                                 title="${item.is_pinned ? 'Unpin' : 'Pin to Dashboard'}">
-//                                 📌
-//                             </button>
-//                             <button class="icon-btn edit"
-//                                 onclick="window.location.href='/project_manage/${item.id}/edit'"
-//                                 title="Edit">✏️</button>
-//                             <button class="icon-btn delete"
-//                                 onclick="deleteItem(${item.id})"
-//                                 title="Delete">🗑️</button>
-//                         ` : ''}
-//                     </div>
-//                 </td>
-//             </tr>
-//         `;
-//     });
-
-//     tableHTML += `
-//             </tbody>
-//         </table>
-//         <div class="pagination-container">
-//             <div class="pagination-info">
-//                 Showing ${items.length} of ${items.length} items
-//             </div>
-//         </div>
-//     `;
-
-//     tabElement.innerHTML = tableHTML;
-// }
-
 function renderTabContent(tabElement, items, status) {
     if (!items || items.length === 0) {
         tabElement.innerHTML = `
@@ -530,31 +422,7 @@ function attachRowEventListeners(row) {
     }
 }
 
-// Show notification function
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        background: ${type === 'success' ? '#48bb78' : '#f56565'};
-        color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        z-index: 1000;
-        animation: slideIn 0.3s ease-out;
-    `;
 
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease-out';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
 
 // Show Details Page - Updated to use routes
 function showDetails(itemId) {
@@ -837,7 +705,35 @@ function removeFileItem(button, index) {
     // For better UX, you might want to track files separately
 }
 
-// Toggle Pin - Pin/Unpin item to dashboard (Now supports multiple pins)
+// Show notification function
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${type === 'success' ? '#48bb78' : '#f56565'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+
+
+// Toggle Pin - Pin/Unpin item to dashboard (Now supports multiple pins with real-time removal)
 function togglePin(itemId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
 
@@ -859,11 +755,11 @@ function togglePin(itemId) {
             if (data.success) {
                 showNotification(data.message, 'success');
 
-                // Update the pin button appearance
+                // Update the pin button appearance in assignments list
                 const pinButtons = document.querySelectorAll('.icon-btn.pin');
                 pinButtons.forEach(btn => {
-                    const btnItemId = btn.getAttribute('onclick').match(/\d+/)[0];
-                    if (btnItemId == itemId) {
+                    const btnOnclick = btn.getAttribute('onclick');
+                    if (btnOnclick && btnOnclick.includes(`togglePin(${itemId})`)) {
                         if (data.is_pinned) {
                             btn.classList.add('pinned');
                             btn.title = 'Unpin';
@@ -873,6 +769,80 @@ function togglePin(itemId) {
                         }
                     }
                 });
+
+                // NEW: If on dashboard and item was unpinned, remove the card in real-time
+                const dashboardPage = document.getElementById('dashboard');
+                console.log('Dashboard page found:', dashboardPage); // Debug
+                console.log('Is pinned:', data.is_pinned); // Debug
+
+                if (!data.is_pinned && dashboardPage) {
+                    console.log('Looking for cards to remove...'); // Debug
+
+                    // Find and remove the card from pinned section
+                    const pinnedCards = document.querySelectorAll('.pinned-card');
+                    console.log('Found pinned cards:', pinnedCards.length); // Debug
+
+                    let cardRemoved = false;
+                    pinnedCards.forEach(card => {
+                        const cardOnclick = card.getAttribute('onclick');
+                        console.log('Card onclick:', cardOnclick); // Debug
+
+                        // Check if this card is for the current item
+                        // Looking for either route format
+                        if (cardOnclick && (
+                            cardOnclick.includes(`projectmng.show', ${itemId}`) ||
+                            cardOnclick.includes(`project_manage/${itemId}`)
+                        )) {
+                            console.log('Found matching card, removing...'); // Debug
+                            cardRemoved = true;
+
+                            // Fade out animation
+                            card.style.transition = 'all 0.3s ease';
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9)';
+
+                            setTimeout(() => {
+                                card.remove();
+                                console.log('Card removed!'); // Debug
+
+                                // Update the pinned count
+                                const pinnedCount = document.querySelector('.pinned-count');
+                                if (pinnedCount) {
+                                    const currentCount = parseInt(pinnedCount.textContent);
+                                    pinnedCount.textContent = currentCount - 1;
+                                    console.log('Updated count to:', currentCount - 1); // Debug
+                                }
+
+                                // Check if pinned section is now empty
+                                const remainingCards = document.querySelectorAll('.pinned-card').length;
+                                console.log('Remaining cards:', remainingCards); // Debug
+
+                                if (remainingCards === 0) {
+                                    const pinnedSection = document.querySelector('.pinned-section');
+                                    if (pinnedSection) {
+                                        console.log('Removing entire pinned section'); // Debug
+                                        pinnedSection.style.transition = 'all 0.3s ease';
+                                        pinnedSection.style.opacity = '0';
+                                        setTimeout(() => pinnedSection.remove(), 300);
+                                    }
+                                }
+
+                                // Hide "Show All" button if 4 or fewer items remain
+                                if (remainingCards <= 4) {
+                                    const expandBtn = document.getElementById('togglePinnedBtn');
+                                    if (expandBtn) {
+                                        console.log('Hiding Show All button'); // Debug
+                                        expandBtn.style.display = 'none';
+                                    }
+                                }
+                            }, 300);
+                        }
+                    });
+
+                    if (!cardRemoved) {
+                        console.log('WARNING: No matching card found to remove!'); // Debug
+                    }
+                }
             } else {
                 showNotification('Failed to update pin status', 'error');
             }
@@ -883,7 +853,8 @@ function togglePin(itemId) {
         });
 }
 
-// Toggle Note Pin - Pin/Unpin note to dashboard (supports multiple pins)
+
+// Toggle Note Pin - Pin/Unpin note to dashboard (supports multiple pins with real-time removal)
 function toggleNotePin(noteId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
 
@@ -905,11 +876,11 @@ function toggleNotePin(noteId) {
             if (data.success) {
                 showNotification(data.message, 'success');
 
-                // Update the pin button appearance
+                // Update the pin button appearance in notes list
                 const pinButtons = document.querySelectorAll('.icon-btn.pin');
                 pinButtons.forEach(btn => {
-                    const btnNoteId = btn.getAttribute('onclick').match(/\d+/)[0];
-                    if (btnNoteId == noteId) {
+                    const btnOnclick = btn.getAttribute('onclick');
+                    if (btnOnclick && btnOnclick.includes(`toggleNotePin(${noteId})`)) {
                         if (data.is_pinned) {
                             btn.classList.add('pinned');
                             btn.title = 'Unpin';
@@ -919,6 +890,79 @@ function toggleNotePin(noteId) {
                         }
                     }
                 });
+
+                // NEW: If on dashboard and item was unpinned, remove the card in real-time
+                const dashboardPage = document.getElementById('dashboard');
+                console.log('Dashboard page found:', dashboardPage); // Debug
+                console.log('Is pinned:', data.is_pinned); // Debug
+
+                if (!data.is_pinned && dashboardPage) {
+                    console.log('Looking for note cards to remove...'); // Debug
+
+                    // Find and remove the card from pinned section
+                    const pinnedCards = document.querySelectorAll('.pinned-card');
+                    console.log('Found pinned cards:', pinnedCards.length); // Debug
+
+                    let cardRemoved = false;
+                    pinnedCards.forEach(card => {
+                        const cardOnclick = card.getAttribute('onclick');
+                        console.log('Card onclick:', cardOnclick); // Debug
+
+                        // Check if this card is for the current note
+                        if (cardOnclick && (
+                            cardOnclick.includes(`notes.show', ${noteId}`) ||
+                            cardOnclick.includes(`notes/${noteId}`)
+                        )) {
+                            console.log('Found matching note card, removing...'); // Debug
+                            cardRemoved = true;
+
+                            // Fade out animation
+                            card.style.transition = 'all 0.3s ease';
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9)';
+
+                            setTimeout(() => {
+                                card.remove();
+                                console.log('Note card removed!'); // Debug
+
+                                // Update the pinned count
+                                const pinnedCount = document.querySelector('.pinned-count');
+                                if (pinnedCount) {
+                                    const currentCount = parseInt(pinnedCount.textContent);
+                                    pinnedCount.textContent = currentCount - 1;
+                                    console.log('Updated count to:', currentCount - 1); // Debug
+                                }
+
+                                // Check if pinned section is now empty
+                                const remainingCards = document.querySelectorAll('.pinned-card').length;
+                                console.log('Remaining cards:', remainingCards); // Debug
+
+                                if (remainingCards === 0) {
+                                    const pinnedSection = document.querySelector('.pinned-section');
+                                    if (pinnedSection) {
+                                        console.log('Removing entire pinned section'); // Debug
+                                        pinnedSection.style.transition = 'all 0.3s ease';
+                                        pinnedSection.style.opacity = '0';
+                                        setTimeout(() => pinnedSection.remove(), 300);
+                                    }
+                                }
+
+                                // Hide "Show All" button if 4 or fewer items remain
+                                if (remainingCards <= 4) {
+                                    const expandBtn = document.getElementById('togglePinnedBtn');
+                                    if (expandBtn) {
+                                        console.log('Hiding Show All button'); // Debug
+                                        expandBtn.style.display = 'none';
+                                    }
+                                }
+                            }, 300);
+                        }
+                    });
+
+                    if (!cardRemoved) {
+                        console.log('WARNING: No matching note card found to remove!'); // Debug
+                    }
+                }
             } else {
                 showNotification('Failed to update pin status', 'error');
             }
