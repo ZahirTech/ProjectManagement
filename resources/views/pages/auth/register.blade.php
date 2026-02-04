@@ -18,7 +18,7 @@
                 <p>Join thousands of teams who trust our platform to deliver projects on time and within budget. Simple,
                     powerful, and designed for success.</p>
 
-                <div class="feature-list">
+                {{-- <div class="feature-list">
                     <div class="feature-item">
                         <svg fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -51,7 +51,7 @@
                         </svg>
                         <span>24/7 Support Available</span>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
 
