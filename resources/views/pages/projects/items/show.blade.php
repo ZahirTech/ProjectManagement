@@ -28,9 +28,11 @@
                     </div>
                     <div class="detail-actions">
                         @if ($item->created_by == auth()->id())
-                            <button class="action-btn edit" onclick="alert('Edit functionality coming soon')">
-                                ✏️ Edit
-                            </button>
+                            <form action="{{ route('projectmng.edit', $item->id) }}" method="get">
+                                <button class="action-btn edit" type="submit">
+                                    ✏️ Edit
+                                </button>
+                            </form>
                             <button class="action-btn delete" onclick="deleteItem({{ $item->id }})">
                                 🗑️ Delete
                             </button>

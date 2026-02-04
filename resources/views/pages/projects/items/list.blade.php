@@ -4,7 +4,7 @@
     <!-- LIST PAGE -->
     <div id="list" class="page">
         <div class="page-header">
-            <h1>Assignment/Note List</h1>
+            <h1>Assignments</h1>
 
             <div class="header-actions">
                 <a href="{{ route('projectmng.create') }}" class="btn btn-primary">

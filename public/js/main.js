@@ -118,6 +118,113 @@ function loadTabContent(status) {
 }
 
 // Render tab content
+// function renderTabContent(tabElement, items, status) {
+//     if (!items || items.length === 0) {
+//         tabElement.innerHTML = `
+//             <div class="empty-state">
+//                 <div class="empty-state-icon">📋</div>
+//                 <h3>No Items Found</h3>
+//                 <p>There are no items with "${status.charAt(0).toUpperCase() + status.slice(1)}" status</p>
+//             </div>
+//         `;
+//         return;
+//     }
+
+//     const userId = document.querySelector('meta[name="user-id"]')?.content;
+
+//     let tableHTML = `
+//         <table class="data-table">
+//             <thead>
+//                 <tr>
+//                     <th>ID</th>
+//                     <th>Title</th>
+//                     <th>Project</th>
+//                     <th>Status</th>
+//                     <th>Priority</th>
+//                     <th>Due Date</th>
+//                     <th>Assigned To</th>
+//                     <th>Attachments</th>
+//                     <th>Actions</th>
+//                 </tr>
+//             </thead>
+//             <tbody>
+//     `;
+
+//     items.forEach(item => {
+//         const itemId = String(item.id).padStart(3, '0');
+
+//         const dueDate = item.due_date
+//             ? new Date(item.due_date).toLocaleDateString('en-US', {
+//                 month: 'short',
+//                 day: '2-digit',
+//                 year: 'numeric'
+//             })
+//             : '-';
+//         const assignedTo = item.assigned_user ? item.assigned_user.name : 'Not Assigned';
+//         const attachmentCount = item.attachments ? item.attachments.length : 0;
+//         const isCreator = userId && item.created_by == userId;
+
+//         tableHTML += `
+//             <tr>
+//                 <td>#${itemId}</td>
+//                 <td>
+//                     ${item.title}
+//                     ${item.is_private ? '<span style="color: #f56565; font-size: 12px;">🔒 Private</span>' : ''}
+//                 </td>
+//                 <td>${item.project.name}</td>
+//                 <td>
+//                     <select class="status-select status-${item.status}"
+//                         onchange="updateStatus(this, ${item.id})"
+//                         data-old-status="${item.status}">
+//                         <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+//                         <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+//                         <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+//                         <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+//                     </select>
+//                 </td>
+//                 <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
+//                 <td>${dueDate}</td>
+//                 <td>${assignedTo}</td>
+//                 <td>
+//                     ${attachmentCount > 0
+//                 ? `<span class="attachment-indicator">📎 ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}</span>`
+//                 : '-'}
+//                 </td>
+//                 <td>
+//                     <div class="action-buttons">
+//                         <button class="icon-btn view" onclick="showDetails(${item.id})" title="View Details">👁️</button>
+//                         ${isCreator ? `
+//                             <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
+//                                 onclick="togglePin(${item.id})"
+//                                 title="${item.is_pinned ? 'Unpin' : 'Pin to Dashboard'}">
+//                                 📌
+//                             </button>
+//                             <button class="icon-btn edit"
+//                                 onclick="window.location.href='/project_manage/${item.id}/edit'"
+//                                 title="Edit">✏️</button>
+//                             <button class="icon-btn delete"
+//                                 onclick="deleteItem(${item.id})"
+//                                 title="Delete">🗑️</button>
+//                         ` : ''}
+//                     </div>
+//                 </td>
+//             </tr>
+//         `;
+//     });
+
+//     tableHTML += `
+//             </tbody>
+//         </table>
+//         <div class="pagination-container">
+//             <div class="pagination-info">
+//                 Showing ${items.length} of ${items.length} items
+//             </div>
+//         </div>
+//     `;
+
+//     tabElement.innerHTML = tableHTML;
+// }
+
 function renderTabContent(tabElement, items, status) {
     if (!items || items.length === 0) {
         tabElement.innerHTML = `
@@ -132,17 +239,22 @@ function renderTabContent(tabElement, items, status) {
 
     const userId = document.querySelector('meta[name="user-id"]')?.content;
 
+    const truncateText = (text, maxChars = 40) => {
+        if (!text) return '-';
+        return text.length > maxChars ? text.slice(0, maxChars) + '…' : text;
+    };
+
     let tableHTML = `
         <table class="data-table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Title</th>
+                    <th style="width: 260px;">Title</th>
                     <th>Project</th>
                     <th>Status</th>
                     <th>Priority</th>
                     <th>Due Date</th>
-                    <th>Assigned To</th>
+                    <th>Assigned</th>
                     <th>Attachments</th>
                     <th>Actions</th>
                 </tr>
@@ -152,19 +264,51 @@ function renderTabContent(tabElement, items, status) {
 
     items.forEach(item => {
         const itemId = String(item.id).padStart(3, '0');
-        const dueDate = item.due_date || '-';
+
+        const dueDate = item.due_date
+            ? new Date(item.due_date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric'
+            })
+            : '-';
+
         const assignedTo = item.assigned_user ? item.assigned_user.name : 'Not Assigned';
         const attachmentCount = item.attachments ? item.attachments.length : 0;
         const isCreator = userId && item.created_by == userId;
+
+        const titleText = truncateText(item.title, 400);
 
         tableHTML += `
             <tr>
                 <td>#${itemId}</td>
                 <td>
-                    ${item.title}
-                    ${item.is_private ? '<span style="color: #f56565; font-size: 12px;">🔒 Private</span>' : ''}
+                <div style="
+                    width: 250px;
+                    max-width: 250px;
+                    white-space: normal;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    font-weight: 500;
+                    line-height: 1.4;
+                    " title="${item.title}">
+                    ${titleText}
+                    ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;">🔒</span>' : ''}
+                </div>
                 </td>
-                <td>${item.project.name}</td>
+                <td>
+                    <div style="
+                        max-width: 100px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        font-weight: 500;
+                    ">
+                ${item.project.name}
+                </td>
                 <td>
                     <select class="status-select status-${item.status}"
                         onchange="updateStatus(this, ${item.id})"
@@ -176,8 +320,26 @@ function renderTabContent(tabElement, items, status) {
                     </select>
                 </td>
                 <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
-                <td>${dueDate}</td>
-                <td>${assignedTo}</td>
+                <td>
+                    <div style="
+                        max-width: 100px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        font-weight: 500;
+                    ">
+                ${dueDate}
+                </td>
+                <td>
+                    <div style="
+                        max-width: 100px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        font-weight: 500;
+                    ">
+                ${assignedTo}
+                </td>
                 <td>
                     ${attachmentCount > 0
                 ? `<span class="attachment-indicator">📎 ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}</span>`
@@ -189,9 +351,7 @@ function renderTabContent(tabElement, items, status) {
                         ${isCreator ? `
                             <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
                                 onclick="togglePin(${item.id})"
-                                title="${item.is_pinned ? 'Unpin' : 'Pin to Dashboard'}">
-                                📌
-                            </button>
+                                title="${item.is_pinned ? 'Unpin' : 'Pin to Dashboard'}">📌</button>
                             <button class="icon-btn edit"
                                 onclick="window.location.href='/project_manage/${item.id}/edit'"
                                 title="Edit">✏️</button>
@@ -217,6 +377,7 @@ function renderTabContent(tabElement, items, status) {
 
     tabElement.innerHTML = tableHTML;
 }
+
 
 // Status Update Function - Updated with AJAX
 function updateStatus(selectElement, itemId) {
@@ -417,7 +578,10 @@ function deleteItem(itemId) {
             .then(response => {
                 if (response.ok) {
                     showNotification('Item deleted successfully!', 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    // setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => {
+                        window.location.href = '/project_manage';
+                    }, 1000);
                 } else {
                     showNotification('Failed to delete item', 'error');
                 }
@@ -782,7 +946,10 @@ function deleteNote(noteId) {
             .then(response => {
                 if (response.ok) {
                     showNotification('Note deleted successfully!', 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    // setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => {
+                        window.location.href = '/notes';
+                    }, 1000);
                 } else {
                     showNotification('Failed to delete note', 'error');
                 }
