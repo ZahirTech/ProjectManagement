@@ -283,21 +283,24 @@ function renderTabContent(tabElement, items, status) {
             <tr>
                 <td>#${itemId}</td>
                 <td>
-                <div style="
-                    width: 250px;
-                    max-width: 250px;
-                    white-space: normal;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    display: -webkit-box;
-                    -webkit-box-orient: vertical;
-                    -webkit-line-clamp: 2;
-                    font-weight: 500;
-                    line-height: 1.4;
-                    " title="${item.title}">
-                    ${titleText}
-                    ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;">🔒</span>' : ''}
-                </div>
+                    <div style="
+                            display: -webkit-box;
+                            -webkit-box-orient: vertical;
+                            -webkit-line-clamp: 2;
+                            overflow: hidden;
+
+                            /* The key changes */
+                            width: max-content;
+                            max-width: 250px;
+                            min-width: 0;
+
+                            font-weight: 500;
+                            line-height: 1.4;
+                            " title="${item.title}">
+                            ${titleText}
+                            ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;display:inline-block;">🔒</span>' : ''}
+                    </div>
+
                 </td>
                 <td>
                     <div style="
