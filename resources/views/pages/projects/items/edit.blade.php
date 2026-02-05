@@ -127,21 +127,37 @@
     <!-- Attachments Section -->
     <div class="card" style="margin-top: 20px;">
         <div class="card-header">
-            <h2>Attachments</h2>
+            <h2>Attachments ({{ $item->attachments->count() }})</h2>
         </div>
         <div class="card-body">
             @if ($item->attachments && $item->attachments->count() > 0)
                 <div class="attachments-grid">
                     @foreach ($item->attachments as $attachment)
                         <div class="attachment-card">
-                            <div class="attachment-icon">📄</div>
+                            <div class="attachment-icon">
+                                @if (str_starts_with($attachment->mime_type, 'image/'))
+                                    🖼️
+                                @elseif(str_contains($attachment->mime_type, 'pdf'))
+                                    📄
+                                @elseif(str_contains($attachment->mime_type, 'spreadsheet') ||
+                                        str_contains($attachment->original_filename, '.xlsx') ||
+                                        str_contains($attachment->original_filename, '.xls'))
+                                    📊
+                                @elseif(str_contains($attachment->mime_type, 'word') ||
+                                        str_contains($attachment->original_filename, '.docx') ||
+                                        str_contains($attachment->original_filename, '.doc'))
+                                    📝
+                                @else
+                                    📎
+                                @endif
+                            </div>
                             <div class="attachment-info">
                                 <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank"
-                                    class="attachment-name">
-                                    {{ $attachment->original_filename }}
+                                    class="attachment-name" title="{{ $attachment->original_filename }}">
+                                    {{ Str::limit($attachment->original_filename, 40) }}
                                 </a>
                                 <span class="attachment-size">
-                                    {{ number_format($attachment->file_size / 1024 / 1024, 2) }} MB
+                                    {{ number_format($attachment->file_size / 1024, 0) }} KB
                                 </span>
                             </div>
                             @if ($item->created_by == auth()->id())
@@ -154,15 +170,16 @@
                     @endforeach
                 </div>
             @else
-                <p style="color: #718096; text-align: center; padding: 20px;">No attachments</p>
+                <p style="color: #718096; text-align: center; padding: 20px;">No attachments yet</p>
             @endif
 
             <!-- Upload New Attachment -->
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                <label for="detailsFileInput" class="btn btn-secondary" style="cursor: pointer;">
-                    📎 Upload New Attachment
+            <div id="uploadSection" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <label for="detailsFileInput" class="btn btn-secondary" style="cursor: pointer; display: inline-block;">
+                    📎 Upload New Attachment(s)
                 </label>
-                <input type="file" id="detailsFileInput" style="display: none;">
+                <input type="file" id="detailsFileInput" multiple style="display: none;">
+                <small style="display: block; margin-top: 8px; color: #718096;">Max 10MB per file</small>
             </div>
         </div>
     </div>
@@ -191,5 +208,219 @@
             border-radius: 4px;
             font-size: 14px;
         }
+
+        .attachments-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .attachment-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .attachment-card:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .attachment-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .attachment-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .attachment-name {
+            display: block;
+            font-weight: 500;
+            color: #2d3748;
+            text-decoration: none;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .attachment-name:hover {
+            color: #4299e1;
+            text-decoration: underline;
+        }
+
+        .attachment-size {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .btn-icon-delete {
+            background: #fed7d7;
+            color: #c53030;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-icon-delete:hover {
+            background: #fc8181;
+            color: white;
+        }
+
+        /* Upload indicator styles */
+        .upload-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            color: #2c5282;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #bee3f8;
+            border-top-color: #3182ce;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
+
+    <script>
+        // File upload handler for edit page
+        document.getElementById('detailsFileInput')?.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length === 0) return;
+
+            const formData = new FormData();
+
+            // Add all selected files
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
+
+            // Show uploading indicator
+            const uploadSection = document.getElementById('uploadSection');
+            const originalHTML = uploadSection.innerHTML;
+            uploadSection.innerHTML = `
+                <div class="upload-indicator">
+                    <div class="spinner"></div>
+                    <span>Uploading ${files.length} file(s)...</span>
+                </div>
+            `;
+
+            // Upload files
+            fetch('{{ route('projectmng.uploadAttachments', $item->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        if (typeof showNotification === 'function') {
+                            showNotification(data.message || 'Files uploaded successfully!', 'success');
+                        }
+                        // Reload page to show new attachments
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        alert(data.message || 'Upload failed');
+                        uploadSection.innerHTML = originalHTML;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Upload failed. Please try again.');
+                    uploadSection.innerHTML = originalHTML;
+                });
+
+            // Reset input
+            e.target.value = '';
+        });
+
+        // Delete attachment function (already working, just keeping it here for reference)
+        function deleteAttachment(attachmentId) {
+            if (!confirm('Are you sure you want to delete this attachment?')) {
+                return;
+            }
+
+            fetch(`/projectmng/attachments/${attachmentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof showNotification === 'function') {
+                            showNotification('Attachment deleted successfully!', 'success');
+                        }
+                        setTimeout(() => {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        alert(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Delete failed. Please try again.');
+                });
+        }
+
+        // Handle private checkbox - disable assignment when private
+        document.getElementById('isPrivateCheckbox')?.addEventListener('change', function() {
+            const assignedToSelect = document.getElementById('assignedToSelect');
+            const assignmentGroup = document.getElementById('assignmentGroup');
+
+            if (this.checked) {
+                assignedToSelect.value = '';
+                assignedToSelect.disabled = true;
+                assignmentGroup.style.opacity = '0.5';
+            } else {
+                assignedToSelect.disabled = false;
+                assignmentGroup.style.opacity = '1';
+            }
+        });
+
+        // Check on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isPrivateCheckbox = document.getElementById('isPrivateCheckbox');
+            if (isPrivateCheckbox && isPrivateCheckbox.checked) {
+                const assignedToSelect = document.getElementById('assignedToSelect');
+                const assignmentGroup = document.getElementById('assignmentGroup');
+                assignedToSelect.disabled = true;
+                assignmentGroup.style.opacity = '0.5';
+            }
+        });
+    </script>
 @endsection

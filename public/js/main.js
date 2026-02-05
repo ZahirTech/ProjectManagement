@@ -172,92 +172,73 @@ function renderTabContent(tabElement, items, status) {
         const titleText = truncateText(item.title, 400);
 
         tableHTML += `
-            <tr>
-                <td>#${itemId}</td>
-                <td>
-                    <div style="
-                            display: -webkit-box;
-                            -webkit-box-orient: vertical;
-                            -webkit-line-clamp: 2;
-                            overflow: hidden;
-
-                            /* The key changes */
-                            width: max-content;
-                            max-width: 250px;
-                            min-width: 0;
-
-                            font-weight: 500;
-                            line-height: 1.4;
-                            " title="${item.title}">
-                            ${titleText}
-                            ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;display:inline-block;">🔒</span>' : ''}
-                    </div>
-
-                </td>
-                <td>
-                    <div style="
-                        max-width: 100px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        font-weight: 500;
-                    ">
+    <tr onclick="showDetails(${item.id})" style="cursor: pointer;" class="hoverable-row">
+        <td>#${itemId}</td>
+        <td>
+            <div style="
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                    width: max-content;
+                    max-width: 250px;
+                    min-width: 0;
+                    font-weight: 500;
+                    line-height: 1.4;
+                    " title="${item.title}">
+                    ${titleText}
+                    ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;display:inline-block;">🔒</span>' : ''}
+            </div>
+        </td>
+        <td>
+            <div style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
                 ${item.project.name}
-                </td>
-                <td>
-                    <select class="status-select status-${item.status}"
-                        onchange="updateStatus(this, ${item.id})"
-                        data-old-status="${item.status}">
-                        <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
-                        <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
-                        <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
-                    </select>
-                </td>
-                <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
-                <td>
-                    <div style="
-                        max-width: 100px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        font-weight: 500;
-                    ">
+            </div>
+        </td>
+        <td onclick="event.stopPropagation()">
+            <select class="status-select status-${item.status}"
+                onchange="updateStatus(this, ${item.id})"
+                data-old-status="${item.status}">
+                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+            </select>
+        </td>
+        <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
+        <td>
+            <div style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
                 ${dueDate}
-                </td>
-                <td>
-                    <div style="
-                        max-width: 100px;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        font-weight: 500;
-                    ">
+            </div>
+        </td>
+        <td>
+            <div style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
                 ${assignedTo}
-                </td>
-                <td>
-                    ${attachmentCount > 0
-                ? `<span class="attachment-indicator">📎 ${attachmentCount} file${attachmentCount > 1 ? 's' : ''}</span>`
+            </div>
+        </td>
+        <td>
+            ${attachmentCount > 0
+                ? `<span class="attachment-indicator">📎 ${attachmentCount}</span>`
                 : '-'}
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="icon-btn view" onclick="showDetails(${item.id})" title="View Details">👁️</button>
-                        ${isCreator ? `
-                            <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
-                                onclick="togglePin(${item.id})"
-                                title="${item.is_pinned ? 'Unpin' : 'Pin to Dashboard'}">📌</button>
-                            <button class="icon-btn edit"
-                                onclick="window.location.href='/project_manage/${item.id}/edit'"
-                                title="Edit">✏️</button>
-                            <button class="icon-btn delete"
-                                onclick="deleteItem(${item.id})"
-                                title="Delete">🗑️</button>
-                        ` : ''}
-                    </div>
-                </td>
-            </tr>
-        `;
+        </td>
+        <td onclick="event.stopPropagation()">
+            <div class="action-buttons">
+                
+                ${isCreator ? `
+                    <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
+                        onclick="togglePin(${item.id})"
+                        title="${item.is_pinned ? 'Unpin' : 'Pin'}">📌</button>
+                    <button class="icon-btn edit"
+                        onclick="window.location.href='/project_manage/${item.id}/edit'"
+                        title="Edit">✏️</button>
+                    <button class="icon-btn delete"
+                        onclick="deleteItem(${item.id})"
+                        title="Delete">🗑️</button>
+                ` : ''}
+            </div>
+        </td>
+    </tr>
+`;
     });
 
     tableHTML += `

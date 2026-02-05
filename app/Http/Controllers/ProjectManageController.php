@@ -300,4 +300,43 @@ class ProjectManageController extends Controller
             'message' => $item->is_pinned ? 'Item pinned to dashboard' : 'Item unpinned'
         ]);
     }
+
+    public function uploadAttachments(Request $request, $id)
+    {
+        $item = ProjectItem::findOrFail($id);
+
+        if (!$item->canView(Auth::id())) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'files' => 'required|array',
+            'files.*' => 'file|max:10240' // 10MB max per file
+        ]);
+
+        $uploadedFiles = [];
+
+        foreach ($request->file('files') as $file) {
+            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('attachments', $filename, 'public');
+
+            $attachment = Attachment::create([
+                'project_item_id' => $item->id,
+                'filename' => $filename,
+                'original_filename' => $file->getClientOriginalName(),
+                'file_path' => $path,
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'uploaded_by' => Auth::id()
+            ]);
+
+            $uploadedFiles[] = $attachment;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => count($uploadedFiles) . ' file(s) uploaded successfully',
+            'attachments' => $uploadedFiles
+        ]);
+    }
 }

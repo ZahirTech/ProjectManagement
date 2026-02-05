@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('project_manage/{id}/edit', [ProjectManageController::class, 'edit'])->name('projectmng.edit');
     Route::put('project_manage/{id}', [ProjectManageController::class, 'update'])->name('projectmng.update');
     Route::delete('project_manage/{id}', [ProjectManageController::class, 'destroy'])->name('projectmng.destroy');
+    Route::post('/projectmng/{id}/upload-attachments', [ProjectManageController::class, 'uploadAttachments'])->name('projectmng.uploadAttachments');
     // Notes Routes
     Route::get('notes', [NotesController::class, 'index'])->name('notes.index');
     Route::get('notes/create', [NotesController::class, 'create'])->name('notes.create');
