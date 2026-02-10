@@ -4,7 +4,7 @@
     <!-- CREATE PAGE -->
     <div id="create" class="page">
         <div class="page-header">
-            <h1>Create New Assignment/Note</h1>
+            <h1>Create New Assignment</h1>
         </div>
 
         @include('design.includes.alert')

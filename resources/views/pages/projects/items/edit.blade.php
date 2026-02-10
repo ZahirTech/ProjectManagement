@@ -3,8 +3,8 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h1>Edit Project Item</h1>
-            <p class="page-description">Update project item details</p>
+            <h1>Edit Assignment</h1>
+            <p class="page-description">Update project Assignment details</p>
         </div>
         <div class="header-actions">
             <button class="btn btn-secondary" onclick="window.history.back()">
