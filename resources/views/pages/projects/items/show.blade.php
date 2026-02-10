@@ -467,7 +467,9 @@
             font-size: 1.0625rem;
             line-height: 1.7;
             color: #4b5563;
-            white-space: pre-wrap;
+            white-space: pre-line;
+            /* Changed from pre-wrap to pre-line - this fixes the spacing issue */
+            word-wrap: break-word;
         }
 
         /* Details Grid */
@@ -803,6 +805,7 @@
             }
         }
     </style>
+
     <script>
         // File upload handler
         document.getElementById('detailsFileInput')?.addEventListener('change', function(e) {

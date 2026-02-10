@@ -86,6 +86,34 @@
         </div>
     </article>
 
+    <script>
+        function deleteNote(noteId) {
+            if (!confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch(`/notes/${noteId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '{{ route('notes.index') }}';
+                    } else {
+                        alert(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Delete failed. Please try again.');
+                });
+        }
+    </script>
+
     <style>
         .note-article {
             min-height: 100vh;
@@ -169,7 +197,8 @@
             font-size: 1.0625rem;
             line-height: 1.75;
             color: #374151;
-            white-space: pre-wrap;
+            white-space: pre-line;
+            /* Changed from pre-wrap to pre-line - this fixes the spacing issue */
             word-wrap: break-word;
             margin-bottom: 2.5rem;
         }
