@@ -16,7 +16,7 @@ class NotesController extends Controller
     {
         $projects = Project::where('status', 'active')->get();
 
-        $query = Note::with(['project', 'creator'])
+        $query = Note::with(['project', 'creator', 'attachments'])
             ->accessibleBy(Auth::id());
 
         // Apply project filter

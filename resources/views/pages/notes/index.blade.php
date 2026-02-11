@@ -63,6 +63,11 @@
                             @if ($note->is_private)
                                 <span style="color: #f56565; font-size: 14px;">🔒</span>
                             @endif
+                            @if ($note->attachments && $note->attachments->count() > 0)
+                                <span class="attachment-badge" title="{{ $note->attachments->count() }} attachment(s)">
+                                    📎 {{ $note->attachments->count() }}
+                                </span>
+                            @endif
                         </h3>
                         <p class="note-excerpt">
                             {{ Str::limit($note->content ?? 'No content', 150) }}
@@ -136,6 +141,22 @@
             font-weight: 600;
             color: #2d3748;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .attachment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 12px;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
         }
 
         .note-excerpt {

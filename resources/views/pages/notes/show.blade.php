@@ -68,30 +68,51 @@
                         </svg>
                         Attachments ({{ $note->attachments->count() }})
                     </h3>
-                    <div class="attachments-grid">
+                    <div class="attachments-list">
                         @foreach ($note->attachments as $attachment)
-                            <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank"
-                                class="attachment-card">
-                                <div class="attachment-icon-large">
+                            <div class="attachment-item-full">
+                                <div class="attachment-preview-full">
                                     @if (str_starts_with($attachment->mime_type, 'image/'))
-                                        🖼️
+                                        <img src="{{ asset('storage/' . $attachment->file_path) }}"
+                                            alt="{{ $attachment->original_filename }}" class="attachment-image-full">
                                     @elseif(str_contains($attachment->mime_type, 'pdf'))
-                                        📄
+                                        <div class="file-icon-full">📄</div>
                                     @elseif(str_contains($attachment->mime_type, 'word'))
-                                        📝
+                                        <div class="file-icon-full">📝</div>
                                     @elseif(str_contains($attachment->mime_type, 'sheet'))
-                                        📊
+                                        <div class="file-icon-full">📊</div>
                                     @else
-                                        📎
+                                        <div class="file-icon-full">📎</div>
                                     @endif
                                 </div>
-                                <div class="attachment-card-info">
-                                    <div class="attachment-card-name">{{ $attachment->original_filename }}</div>
-                                    <div class="attachment-card-meta">
+                                <div class="attachment-details-full">
+                                    <div class="attachment-name-full">{{ $attachment->original_filename }}</div>
+                                    <div class="attachment-meta-full">
                                         {{ $attachment->formatted_size }} · {{ $attachment->uploader->name }}
                                     </div>
+                                    <div class="attachment-actions-full">
+                                        <a href="{{ asset('storage/' . $attachment->file_path) }}"
+                                            download="{{ $attachment->original_filename }}"
+                                            class="action-link-full download">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Download
+                                        </a>
+                                        @if ($note->created_by == auth()->id())
+                                            <button class="action-link-full delete"
+                                                onclick="deleteNoteAttachment({{ $attachment->id }})">
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Delete
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
-                            </a>
+                            </div>
                         @endforeach
                     </div>
                 </div>
@@ -142,6 +163,32 @@
                 .then(data => {
                     if (data.success) {
                         window.location.href = '{{ route('notes.index') }}';
+                    } else {
+                        alert(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Delete failed. Please try again.');
+                });
+        }
+
+        function deleteNoteAttachment(attachmentId) {
+            if (!confirm('Are you sure you want to delete this attachment?')) {
+                return;
+            }
+
+            fetch(`/notes/attachments/${attachmentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
                     } else {
                         alert(data.message || 'Delete failed');
                     }
@@ -263,53 +310,111 @@
             height: 20px;
         }
 
-        .attachments-grid {
+        .attachments-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 0.875rem;
         }
 
-        .attachment-card {
+        .attachment-item-full {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.25rem;
+            gap: 0.875rem;
+            padding: 0.875rem;
             background: #f9fafb;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            text-decoration: none;
             transition: all 0.2s;
+        }
+
+        .attachment-item-full:hover {
+            background: #f3f4f6;
+            border-color: #cbd5e0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .attachment-preview-full {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .attachment-image-full {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-icon-full {
+            font-size: 2.25rem;
+        }
+
+        .attachment-details-full {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .attachment-name-full {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.375rem;
+            word-break: break-word;
+            font-size: 0.9375rem;
+        }
+
+        .attachment-meta-full {
+            font-size: 0.8125rem;
+            color: #6b7280;
+            margin-bottom: 0.625rem;
+        }
+
+        .attachment-actions-full {
+            display: flex;
+            gap: 0.875rem;
+        }
+
+        .action-link-full {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.375rem 0.625rem;
+            border-radius: 5px;
+            transition: all 0.2s;
+            border: none;
             cursor: pointer;
         }
 
-        .attachment-card:hover {
-            background: #f3f4f6;
-            border-color: #d1d5db;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        .action-link-full svg {
+            width: 13px;
+            height: 13px;
         }
 
-        .attachment-icon-large {
-            font-size: 3rem;
-            margin-bottom: 0.75rem;
+        .action-link-full.download {
+            color: #2563eb;
+            background: #dbeafe;
         }
 
-        .attachment-card-info {
-            text-align: center;
-            width: 100%;
+        .action-link-full.download:hover {
+            background: #3b82f6;
+            color: white;
         }
 
-        .attachment-card-name {
-            font-weight: 500;
-            color: #111827;
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-            word-break: break-word;
+        .action-link-full.delete {
+            color: #dc2626;
+            background: #fee2e2;
         }
 
-        .attachment-card-meta {
-            font-size: 0.75rem;
-            color: #6b7280;
+        .action-link-full.delete:hover {
+            background: #ef4444;
+            color: white;
         }
 
         /* Footer */
