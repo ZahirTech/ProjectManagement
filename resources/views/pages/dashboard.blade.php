@@ -9,8 +9,12 @@
 
         <!-- Stats Grid -->
         <div class="stats-grid">
+            <div class="stat-card success">
+                <div class="stat-label">Total Notes</div>
+                <div class="stat-value">{{ $stats['total_notes'] }}</div>
+            </div>
             <div class="stat-card">
-                <div class="stat-label">Total Items</div>
+                <div class="stat-label">Total Assignment</div>
                 <div class="stat-value">{{ $stats['total'] }}</div>
                 <div class="stat-trend">
                     @if ($trends['total'] > 0)
@@ -49,6 +53,11 @@
                         → No change from last month
                     @endif
                 </div>
+            </div>
+
+            <div class="stat-card" style="border-left-color: #D69E2E;">
+                <div class="stat-label">Paused</div>
+                <div class="stat-value">{{ $stats['hold'] }}</div>
             </div>
 
             <div class="stat-card success">
@@ -93,7 +102,7 @@
                                 stroke-width="2">
                                 <path d="M12 17v5m-3-2l3-3 3 3m-8-13l6-6 6 6m-12 0v6a2 2 0 002 2h8a2 2 0 002-2V7" />
                             </svg> --}}
-                            <img src="{{asset('icons/pin.png')}}" alt="" height="20px" width="20px">
+                            <img src="{{ asset('icons/pin.png') }}" alt="" height="20px" width="20px">
                         </div>
                         <h2>Pinned Items</h2>
                         <span class="pinned-count">{{ $totalPinned }}</span>
@@ -124,7 +133,7 @@
                                     <path d="M12 17v5m-3-2l3-3 3 3m-8-13l6-6 6 6m-12 0v6a2 2 0 002 2h8a2 2 0 002-2V7" />
                                 </svg> --}}
 
-                                <img src="{{asset('icons/gps.png')}}" alt="" height="20px" width="20px">
+                                <img src="{{ asset('icons/gps.png') }}" alt="" height="20px" width="20px">
                             </button>
 
                             <div class="pinned-card-header">

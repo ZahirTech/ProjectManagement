@@ -24,6 +24,8 @@ class DashboardController extends Controller
             'pending' => ProjectItem::accessibleBy($userId)->where('status', 'pending')->count(),
             'processing' => ProjectItem::accessibleBy($userId)->where('status', 'processing')->count(),
             'completed' => ProjectItem::accessibleBy($userId)->where('status', 'completed')->count(),
+            'hold' => ProjectItem::accessibleBy($userId)->where('status', 'on-hold')->count(),
+            'total_notes' => Note::accessibleBy($userId)->count(),
         ];
 
         // Get last month stats for comparison
