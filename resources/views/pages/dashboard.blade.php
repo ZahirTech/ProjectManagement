@@ -305,7 +305,7 @@
 
         <!-- Recent Updates -->
         <div class="recent-section">
-            <h2>Recent Project Updates</h2>
+            <h2>Recent Assignment Updates</h2>
 
             @if (isset($recentUpdates) && $recentUpdates->count() > 0)
                 @foreach ($recentUpdates as $update)
