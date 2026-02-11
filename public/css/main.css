@@ -557,7 +557,6 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: transform 0.2s;
-    margin-top: 20px;
 }
 
 .submit-btn:hover {

@@ -34,6 +34,11 @@ class Note extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(NoteAttachment::class);
+    }
+
     // Check if user can view this note
     public function canView($userId)
     {

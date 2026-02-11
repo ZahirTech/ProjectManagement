@@ -39,6 +39,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('notes/{id}', [NotesController::class, 'destroy'])->name('notes.destroy');
     Route::patch('notes/{id}/pin', [NotesController::class, 'togglePin'])->name('notes.togglePin');
 
+    Route::post('/notes/{id}/attachments', [NotesController::class, 'uploadAttachments'])->name('notes.attachments.upload');
+    Route::delete('/notes/attachments/{id}', [NotesController::class, 'deleteAttachment'])->name('notes.attachments.delete');
+
     // Status Update (AJAX)
     Route::patch('project_manage/{id}/status', [ProjectManageController::class, 'updateStatus'])
         ->name('projectmng.updateStatus');

@@ -58,6 +58,45 @@
                 {{ $note->content ?: 'No content available.' }}
             </div>
 
+            <!-- Attachments Section -->
+            @if ($note->attachments->count() > 0)
+                <div class="attachments-section">
+                    <h3 class="attachments-title">
+                        <svg class="attachments-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                        Attachments ({{ $note->attachments->count() }})
+                    </h3>
+                    <div class="attachments-grid">
+                        @foreach ($note->attachments as $attachment)
+                            <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank"
+                                class="attachment-card">
+                                <div class="attachment-icon-large">
+                                    @if (str_starts_with($attachment->mime_type, 'image/'))
+                                        🖼️
+                                    @elseif(str_contains($attachment->mime_type, 'pdf'))
+                                        📄
+                                    @elseif(str_contains($attachment->mime_type, 'word'))
+                                        📝
+                                    @elseif(str_contains($attachment->mime_type, 'sheet'))
+                                        📊
+                                    @else
+                                        📎
+                                    @endif
+                                </div>
+                                <div class="attachment-card-info">
+                                    <div class="attachment-card-name">{{ $attachment->original_filename }}</div>
+                                    <div class="attachment-card-meta">
+                                        {{ $attachment->formatted_size }} · {{ $attachment->uploader->name }}
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <!-- Footer Actions -->
             @if ($note->created_by == auth()->id())
                 <footer class="note-footer">
@@ -198,9 +237,79 @@
             line-height: 1.75;
             color: #374151;
             white-space: pre-line;
-            /* Changed from pre-wrap to pre-line - this fixes the spacing issue */
             word-wrap: break-word;
             margin-bottom: 2.5rem;
+        }
+
+        /* Attachments Section */
+        .attachments-section {
+            margin-bottom: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .attachments-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1rem;
+        }
+
+        .attachments-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .attachments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .attachment-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.25rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .attachment-card:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .attachment-icon-large {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .attachment-card-info {
+            text-align: center;
+            width: 100%;
+        }
+
+        .attachment-card-name {
+            font-weight: 500;
+            color: #111827;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+
+        .attachment-card-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
         }
 
         /* Footer */
@@ -285,6 +394,10 @@
             .action-btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .attachments-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
