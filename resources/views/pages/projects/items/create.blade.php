@@ -95,7 +95,7 @@
                     <div class="form-group full-width">
                         <label>Attach Files</label>
                         <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
-                            <input type="file" id="fileInput" multiple style="display: none;">
+                            <input type="file" id="fileInput" name="attachments[]" multiple style="display: none;">
                             <div class="file-icon">📎</div>
                             <div>Click to upload or drag and drop</div>
                             <div style="font-size: 12px; color: #a0aec0; margin-top: 5px;">
@@ -114,9 +114,6 @@
     </div>
 
     <script>
-        // Store selected files
-        let selectedFiles = [];
-
         function toggleAssignment() {
             const isPrivate = document.getElementById('isPrivateCheckbox').checked;
             const assignmentGroup = document.getElementById('assignmentGroup');
@@ -132,35 +129,16 @@
             }
         }
 
-        // Update the file input with current selected files
-        function updateFileInput() {
-            const fileInput = document.getElementById('fileInput');
-            const dataTransfer = new DataTransfer();
-
-            selectedFiles.forEach(file => {
-                dataTransfer.items.add(file);
-            });
-
-            fileInput.files = dataTransfer.files;
-        }
-
-        // Remove file from selection
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileInput();
-            displayFiles();
-        }
-
         // Display selected files
-        function displayFiles() {
+        function displayFiles(files) {
             const filesList = document.getElementById('uploadedFilesList');
             filesList.innerHTML = '';
 
-            if (selectedFiles.length === 0) {
+            if (!files || files.length === 0) {
                 return;
             }
 
-            selectedFiles.forEach((file, index) => {
+            Array.from(files).forEach((file, index) => {
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
 
@@ -195,6 +173,22 @@
             });
         }
 
+        // Remove file from selection
+        function removeFile(index) {
+            const fileInput = document.getElementById('fileInput');
+            const dataTransfer = new DataTransfer();
+
+            const files = Array.from(fileInput.files);
+            files.splice(index, 1);
+
+            files.forEach(file => {
+                dataTransfer.items.add(file);
+            });
+
+            fileInput.files = dataTransfer.files;
+            displayFiles(fileInput.files);
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             toggleAssignment();
@@ -203,27 +197,18 @@
             const fileInput = document.getElementById('fileInput');
 
             fileInput.addEventListener('change', function(e) {
-                const newFiles = Array.from(e.target.files);
+                const files = Array.from(e.target.files);
 
                 // Check file sizes
-                const invalidFiles = newFiles.filter(file => file.size > 10 * 1024 * 1024);
+                const invalidFiles = files.filter(file => file.size > 10 * 1024 * 1024);
                 if (invalidFiles.length > 0) {
                     alert(
                         `The following files exceed 10MB limit:\n${invalidFiles.map(f => f.name).join('\n')}`);
+                    fileInput.value = ''; // Clear the input
                     return;
                 }
 
-                // Add new files to selection (avoiding duplicates by name)
-                newFiles.forEach(newFile => {
-                    const exists = selectedFiles.some(f => f.name === newFile.name && f.size ===
-                        newFile.size);
-                    if (!exists) {
-                        selectedFiles.push(newFile);
-                    }
-                });
-
-                updateFileInput();
-                displayFiles();
+                displayFiles(e.target.files);
             });
 
             // Drag and drop support
@@ -252,33 +237,32 @@
 
             uploadArea.addEventListener('drop', function(e) {
                 const dt = e.dataTransfer;
-                const files = Array.from(dt.files);
+                const droppedFiles = Array.from(dt.files);
 
                 // Check file sizes
-                const invalidFiles = files.filter(file => file.size > 10 * 1024 * 1024);
+                const invalidFiles = droppedFiles.filter(file => file.size > 10 * 1024 * 1024);
                 if (invalidFiles.length > 0) {
                     alert(
                         `The following files exceed 10MB limit:\n${invalidFiles.map(f => f.name).join('\n')}`);
                     return;
                 }
 
-                // Add files
-                files.forEach(file => {
-                    const exists = selectedFiles.some(f => f.name === file.name && f.size === file
-                        .size);
-                    if (!exists) {
-                        selectedFiles.push(file);
-                    }
+                // Get existing files
+                const existingFiles = Array.from(fileInput.files);
+
+                // Combine existing and new files
+                const dataTransfer = new DataTransfer();
+                [...existingFiles, ...droppedFiles].forEach(file => {
+                    dataTransfer.items.add(file);
                 });
 
-                updateFileInput();
-                displayFiles();
+                fileInput.files = dataTransfer.files;
+                displayFiles(fileInput.files);
             });
 
             // Form submission validation
             document.getElementById('createForm').addEventListener('submit', function(e) {
-                // The files are already in the input, so form will submit normally
-                console.log('Submitting with', selectedFiles.length, 'files');
+                console.log('Submitting with', fileInput.files.length, 'files');
             });
         });
     </script>
