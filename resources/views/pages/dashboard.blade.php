@@ -89,10 +89,11 @@
                 <div class="pinned-header">
                     <div class="pinned-header-left">
                         <div class="pin-icon-wrapper">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            {{-- <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M12 17v5m-3-2l3-3 3 3m-8-13l6-6 6 6m-12 0v6a2 2 0 002 2h8a2 2 0 002-2V7" />
-                            </svg>
+                            </svg> --}}
+                            <img src="{{asset('icons/pin.png')}}" alt="" height="20px" width="20px">
                         </div>
                         <h2>Pinned Items</h2>
                         <span class="pinned-count">{{ $totalPinned }}</span>
@@ -118,10 +119,12 @@
                             <button class="unpin-btn"
                                 onclick="event.stopPropagation(); {{ $item instanceof \App\Models\Note ? 'toggleNotePin' : 'togglePin' }}({{ $item->id }})"
                                 title="Unpin this item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                                {{-- <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
                                     stroke="currentColor" stroke-width="2">
                                     <path d="M12 17v5m-3-2l3-3 3 3m-8-13l6-6 6 6m-12 0v6a2 2 0 002 2h8a2 2 0 002-2V7" />
-                                </svg>
+                                </svg> --}}
+
+                                <img src="{{asset('icons/gps.png')}}" alt="" height="20px" width="20px">
                             </button>
 
                             <div class="pinned-card-header">
@@ -485,11 +488,12 @@
         }
 
         .unpin-btn:hover {
-            background: #dc2626;
+            /* background: #dc2626; */
+            background: #fcefef;
             color: white;
-            border-color: #dc2626;
+            border-color: #f08888;
             transform: scale(1.1) rotate(15deg);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            box-shadow: 0 4px 12px rgba(216, 147, 147, 0.3);
         }
 
         .unpin-btn:active {
