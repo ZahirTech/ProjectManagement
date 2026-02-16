@@ -99,7 +99,7 @@
                             <div class="file-icon">📎</div>
                             <div>Click to upload or drag and drop</div>
                             <div style="font-size: 12px; color: #a0aec0; margin-top: 5px;">
-                                PDF, DOC, XLS, Images (Max 10MB each)
+                                PDF, DOC, XLS, Images (Max 300MB each)
                             </div>
                         </div>
                         <div class="uploaded-files-list" id="uploadedFilesList">
