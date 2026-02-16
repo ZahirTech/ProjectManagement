@@ -200,10 +200,10 @@
                 const files = Array.from(e.target.files);
 
                 // Check file sizes
-                const invalidFiles = files.filter(file => file.size > 10 * 1024 * 1024);
+                const invalidFiles = files.filter(file => file.size > 300 * 1024 * 1024);
                 if (invalidFiles.length > 0) {
                     alert(
-                        `The following files exceed 10MB limit:\n${invalidFiles.map(f => f.name).join('\n')}`);
+                        `The following files exceed 300MB limit:\n${invalidFiles.map(f => f.name).join('\n')}`);
                     fileInput.value = ''; // Clear the input
                     return;
                 }
@@ -240,10 +240,10 @@
                 const droppedFiles = Array.from(dt.files);
 
                 // Check file sizes
-                const invalidFiles = droppedFiles.filter(file => file.size > 10 * 1024 * 1024);
+                const invalidFiles = droppedFiles.filter(file => file.size > 300 * 1024 * 1024);
                 if (invalidFiles.length > 0) {
                     alert(
-                        `The following files exceed 10MB limit:\n${invalidFiles.map(f => f.name).join('\n')}`);
+                        `The following files exceed 300MB limit:\n${invalidFiles.map(f => f.name).join('\n')}`);
                     return;
                 }
 

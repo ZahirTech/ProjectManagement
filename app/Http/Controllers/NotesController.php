@@ -47,7 +47,7 @@ class NotesController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
             'is_private' => 'nullable|boolean',
-            'attachments.*' => 'nullable|file|max:10240' // 10MB max
+            'attachments.*' => 'nullable|file|max:300240' // 10MB max
         ]);
 
         $validated['created_by'] = Auth::id();
@@ -172,7 +172,7 @@ class NotesController extends Controller
 
         $request->validate([
             'files' => 'required|array',
-            'files.*' => 'file|max:10240' // 10MB max per file
+            'files.*' => 'file|max:300240' // 10MB max per file
         ]);
 
         $uploadedFiles = [];
