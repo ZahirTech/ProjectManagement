@@ -106,6 +106,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            overflow: hidden;
         }
 
         .note-card:hover {
