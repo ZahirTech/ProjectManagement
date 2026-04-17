@@ -250,14 +250,16 @@
         .note-article {
             min-height: 100vh;
             background: #f7f8fc;
-            padding: 2rem 1rem;
+            padding: 1rem 0.5rem;
+            /* reduced from 2rem 1rem */
         }
 
         .note-container {
             max-width: 780px;
             margin: 0 auto;
             background: white;
-            padding: 2.5rem 3rem;
+            padding: 2rem 2rem;
+            /* reduced from 2.5rem 3rem */
             border-radius: 12px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
         }
@@ -474,6 +476,18 @@
             cursor: pointer;
             font-family: monospace;
             transition: all 0.15s;
+            white-space: nowrap;
+            /* prevent wrapping */
+            flex-shrink: 0;
+            /* don't let it grow/shrink weirdly */
+            line-height: 1;
+        }
+
+        .copy-code-btn svg {
+            width: 14px !important;
+            height: 14px !important;
+            flex-shrink: 0;
+            display: block;
         }
 
         .copy-code-btn:hover {
@@ -862,12 +876,17 @@
 
         /* ─── Responsive ─── */
         @media (max-width: 768px) {
+            .note-article {
+                padding: 0.5rem 0;
+            }
+
             .note-container {
-                padding: 1.5rem 1.25rem;
+                padding: 1.25rem 1rem;
+                border-radius: 8px;
             }
 
             .note-title {
-                font-size: 1.75rem;
+                font-size: 1.5rem;
             }
 
             .rich-content {
@@ -883,8 +902,24 @@
                 justify-content: center;
             }
 
+            .rich-content pre {
+                margin: 1em -0rem;
+                /* let code blocks breathe */
+                border-radius: 8px;
+            }
+
             .rich-content pre code {
-                font-size: 0.8em;
+                font-size: 0.78em;
+                padding: 12px 14px;
+            }
+
+            .code-block-header {
+                padding: 6px 10px;
+            }
+
+            .copy-code-btn {
+                font-size: 11px;
+                padding: 3px 8px;
             }
         }
     </style>
