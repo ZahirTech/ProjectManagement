@@ -70,7 +70,7 @@
                             @endif
                         </h3>
                         <p class="note-excerpt">
-                            {{ Str::limit($note->content ?? 'No content', 150) }}
+                            {{ Str::limit(strip_tags($note->content ?? 'No content'), 150) }}
                         </p>
                     </div>
 
