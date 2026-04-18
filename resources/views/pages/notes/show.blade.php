@@ -239,17 +239,17 @@
         /* ─── Page Layout ─── */
         .note-article {
             min-height: 100vh;
-            background: #f7f8fc;
+            background: #faf9f7;
             padding: 1rem 0.5rem;
         }
 
         .note-container {
-            max-width: 780px;
+            max-width: 740px;
             margin: 0 auto;
             background: white;
-            padding: 2rem;
+            padding: 3rem 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
         }
 
         .back-link {
@@ -269,20 +269,19 @@
 
         /* ─── Header ─── */
         .note-header {
-            padding-bottom: 1.2rem;
-            margin-bottom: 1.75rem;
+            padding-bottom: 1.25rem;
+            margin-bottom: 2rem;
             border-bottom: 2px solid #f1f3f9;
         }
 
         .note-title {
-            font-size: 2rem;
-            /* 32px — strong but not oversized */
-            font-weight: 800;
-            line-height: 1.25;
-            color: #111827;
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #1a1a1a;
             margin: 0 0 1rem 0;
-            letter-spacing: -0.025em;
-            font-family: 'Georgia', serif;
+            letter-spacing: -0.03em;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .note-meta {
@@ -321,83 +320,87 @@
         }
 
         /* ════════════════════════════════════════
-               RICH TEXT CONTENT — font scale
-               Body: 16.5px (matches Medium / Substack)
-               Headings: fixed rem values, not em,
-               so they don't compound off 16.5px
-            ════════════════════════════════════════ */
+                       RICH TEXT CONTENT — Medium-style typography
+                       Body: 21px, line-height 1.9
+                       Font: source-serif-pro stack
+                       Color: #292929 (warm near-black, Medium's exact body color)
+                    ════════════════════════════════════════ */
         .rich-content {
-            font-size: 18.9px;
-            line-height: 1.85;
-            color: #374151;
-            font-family: 'Georgia', serif;
+            font-size: 21px;
+            line-height: 1.9;
+            color: #292929;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
             margin-bottom: 2.5rem;
             word-wrap: break-word;
+            letter-spacing: 0.002em;
         }
 
         .rich-content h1 {
             font-size: 1.875rem;
-            /* 30px */
-            font-weight: 800;
-            line-height: 1.25;
-            margin: 1.75em 0 0.5em;
-            color: #111827;
-            letter-spacing: -0.02em;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 2em 0 0.5em;
+            color: #1a1a1a;
+            letter-spacing: -0.025em;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
             border-bottom: 2px solid #f1f3f9;
             padding-bottom: 0.3em;
         }
 
         .rich-content h2 {
             font-size: 1.5rem;
-            /* 24px */
             font-weight: 700;
-            line-height: 1.3;
-            margin: 1.6em 0 0.45em;
-            color: #1f2937;
+            line-height: 1.25;
+            margin: 1.75em 0 0.5em;
+            color: #1a1a1a;
+            letter-spacing: -0.02em;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .rich-content h3 {
             font-size: 1.25rem;
-            /* 20px */
             font-weight: 700;
-            line-height: 1.35;
-            margin: 1.4em 0 0.4em;
-            color: #1f2937;
+            line-height: 1.3;
+            margin: 1.5em 0 0.4em;
+            color: #242424;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .rich-content h4 {
             font-size: 1.0625rem;
-            /* 17px */
             font-weight: 600;
             line-height: 1.4;
-            margin: 1.2em 0 0.35em;
-            color: #374151;
+            margin: 1.25em 0 0.35em;
+            color: #292929;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .rich-content p {
-            margin: 0 0 1.1em;
+            margin: 0 0 1.35em;
+            color: #292929;
         }
 
         .rich-content p:last-child {
             margin-bottom: 0;
         }
 
-        /* Links */
+        /* Links — subtle underline, Medium style */
         .rich-content a {
-            color: #4f46e5;
+            color: inherit;
             text-decoration: underline;
             text-underline-offset: 3px;
-            transition: color 0.15s;
+            text-decoration-color: rgba(41, 41, 41, 0.4);
+            transition: text-decoration-color 0.15s;
         }
 
         .rich-content a:hover {
-            color: #3730a3;
+            text-decoration-color: #292929;
         }
 
         /* Inline formatting */
         .rich-content strong {
             font-weight: 700;
-            color: #111827;
+            color: #1a1a1a;
         }
 
         .rich-content em {
@@ -406,7 +409,7 @@
 
         .rich-content s {
             text-decoration: line-through;
-            color: #9ca3af;
+            color: #b3b3b1;
         }
 
         .rich-content u {
@@ -422,7 +425,7 @@
             color: #713f12;
         }
 
-        /* Inline code — relative to body so it scales naturally */
+        /* Inline code */
         .rich-content code {
             background: #f1f5f9;
             color: #c0392b;
@@ -441,7 +444,6 @@
             overflow: hidden;
             font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
             font-size: 0.875rem;
-            /* fixed 14px — never inherits the body size */
             border: 1px solid #21262d;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
             position: relative;
@@ -513,7 +515,6 @@
             white-space: pre;
             line-height: 1.65;
             font-size: inherit;
-            /* inherits 0.875rem from pre — stays at 14px */
             tab-size: 4;
         }
 
@@ -553,15 +554,16 @@
             user-select: none;
         }
 
-        /* ─── Blockquote ─── */
+        /* ─── Blockquote — Medium style: bold dark left border, no bg ─── */
         .rich-content blockquote {
-            border-left: 4px solid #667eea;
-            padding: 10px 20px;
-            margin: 1.4em 0;
-            background: linear-gradient(to right, #f8f7ff, #fafafa);
-            border-radius: 0 8px 8px 0;
+            border-left: 3px solid #292929;
+            padding: 2px 0 2px 24px;
+            margin: 1.75em 0;
+            background: none;
+            border-radius: 0;
             font-style: italic;
-            color: #6b7280;
+            color: #6b6b6b;
+            font-size: 1.1em;
         }
 
         .rich-content blockquote p {
@@ -625,7 +627,7 @@
         .rich-content hr {
             border: none;
             border-top: 2px solid #e5e7eb;
-            margin: 2em 0;
+            margin: 2.5em 0;
         }
 
         /* ─── Images ─── */
@@ -646,6 +648,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .rich-content table th {
@@ -704,6 +707,7 @@
             font-weight: 700;
             color: #111827;
             margin-bottom: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .attachments-icon {
@@ -758,6 +762,7 @@
         .attachment-details {
             flex: 1;
             min-width: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .attachment-name {
@@ -791,6 +796,7 @@
             transition: all 0.15s;
             border: none;
             cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .att-action-btn svg {
@@ -822,6 +828,7 @@
         .note-footer {
             padding-top: 1.5rem;
             border-top: 2px solid #f1f3f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .note-actions {
@@ -843,6 +850,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .action-btn svg {
@@ -883,43 +891,34 @@
             }
 
             .note-container {
-                padding: 1.25rem 1rem;
+                padding: 1.5rem 1.25rem;
                 border-radius: 8px;
             }
 
             .note-title {
-                font-size: 1.5rem;
+                font-size: 1.75rem;
             }
-
-            /* 24px on mobile */
 
             .rich-content {
-                font-size: 15.5px;
-                /* slightly smaller on mobile, still comfortable */
-                line-height: 1.8;
+                font-size: 18px;
+                line-height: 1.85;
             }
 
-            /* Headings scale down on mobile */
             .rich-content h1 {
                 font-size: 1.5rem;
             }
 
-            /* 24px */
             .rich-content h2 {
                 font-size: 1.25rem;
             }
 
-            /* 20px */
             .rich-content h3 {
                 font-size: 1.125rem;
             }
 
-            /* 18px */
             .rich-content h4 {
                 font-size: 1rem;
             }
-
-            /* 16px */
 
             .note-actions {
                 flex-direction: column;
@@ -933,7 +932,6 @@
             .rich-content pre {
                 border-radius: 8px;
                 font-size: 0.8125rem;
-                /* 13px on mobile */
             }
 
             .rich-content pre code {
