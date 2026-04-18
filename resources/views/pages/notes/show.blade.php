@@ -281,8 +281,10 @@
 
         /* ─── Header ─── */
         .note-header {
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
+            /* margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem; */
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
             border-bottom: 2px solid #f1f3f9;
         }
 
@@ -333,7 +335,7 @@
 
         /* ─── Rich Text Content ─── */
         .rich-content {
-            font-size: 1.0625rem;
+            font-size: 1.25rem;
             line-height: 1.8;
             color: #374151;
             font-family: 'Georgia', serif;
