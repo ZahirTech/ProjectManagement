@@ -326,7 +326,7 @@
                    Color: #292929 (warm near-black, Medium's exact body color)
                 ════════════════════════════════════════ */
         .rich-content {
-            font-size: 21px;
+            font-size: 19px;
             line-height: 1.9;
             color: #292929;
             font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
