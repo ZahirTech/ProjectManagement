@@ -335,7 +335,7 @@
 
         /* ─── Rich Text Content ─── */
         .rich-content {
-            font-size: 1.25rem;
+            font-size: 20px;
             line-height: 1.8;
             color: #374151;
             font-family: 'Georgia', serif;
