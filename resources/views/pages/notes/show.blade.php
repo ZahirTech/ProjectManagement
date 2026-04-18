@@ -320,11 +320,11 @@
         }
 
         /* ════════════════════════════════════════
-                       RICH TEXT CONTENT — Medium-style typography
-                       Body: 21px, line-height 1.9
-                       Font: source-serif-pro stack
-                       Color: #292929 (warm near-black, Medium's exact body color)
-                    ════════════════════════════════════════ */
+                   RICH TEXT CONTENT — Medium-style typography
+                   Body: 21px, line-height 1.9
+                   Font: source-serif-pro stack
+                   Color: #292929 (warm near-black, Medium's exact body color)
+                ════════════════════════════════════════ */
         .rich-content {
             font-size: 21px;
             line-height: 1.9;
