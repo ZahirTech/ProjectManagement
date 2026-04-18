@@ -149,17 +149,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
     <script>
-        // ─── Syntax highlighting ───────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', function() {
 
-            // Apply highlight.js to all code blocks
             document.querySelectorAll('.rich-content pre code').forEach(function(block) {
                 hljs.highlightElement(block)
             })
 
-            // Add copy buttons + language label to each code block
             document.querySelectorAll('.rich-content pre').forEach(function(pre) {
-                // Determine language
                 const code = pre.querySelector('code')
                 let lang = ''
                 if (code) {
@@ -170,7 +166,6 @@
                         .toUpperCase()
                 }
 
-                // Build header bar
                 const header = document.createElement('div')
                 header.className = 'code-block-header'
                 header.innerHTML = `
@@ -182,7 +177,6 @@
                 `
                 pre.insertBefore(header, pre.firstChild)
 
-                // Copy button behaviour
                 header.querySelector('.copy-code-btn').addEventListener('click', function() {
                     const text = code ? code.innerText : pre.innerText
                     navigator.clipboard.writeText(text).then(() => {
@@ -198,7 +192,6 @@
                 })
             })
 
-            // Make external links open in new tab
             document.querySelectorAll('.rich-content a').forEach(function(link) {
                 if (link.hostname !== window.location.hostname) {
                     link.setAttribute('target', '_blank')
@@ -206,7 +199,6 @@
                 }
             })
 
-            // Add line numbers toggle (optional, on demand)
             document.querySelectorAll('.rich-content pre').forEach(function(pre) {
                 pre.addEventListener('dblclick', function() {
                     this.classList.toggle('show-line-numbers')
@@ -214,7 +206,6 @@
             })
         })
 
-        // ─── Delete note ──────────────────────────────────────────────────
         function deleteNote(noteId) {
             if (!confirm('Are you sure you want to delete this note? This action cannot be undone.')) return
             fetch(`/notes/${noteId}`, {
@@ -229,7 +220,6 @@
             }).catch(() => alert('Delete failed. Please try again.'))
         }
 
-        // ─── Delete attachment ─────────────────────────────────────────────
         function deleteNoteAttachment(attachmentId) {
             if (!confirm('Are you sure you want to delete this attachment?')) return
             fetch(`/notes/attachments/${attachmentId}`, {
@@ -249,19 +239,17 @@
         /* ─── Page Layout ─── */
         .note-article {
             min-height: 100vh;
-            background: #f7f8fc;
+            background: #faf9f7;
             padding: 1rem 0.5rem;
-            /* reduced from 2rem 1rem */
         }
 
         .note-container {
-            max-width: 780px;
+            max-width: 740px;
             margin: 0 auto;
             background: white;
-            padding: 2rem 2rem;
-            /* reduced from 2.5rem 3rem */
+            padding: 3rem 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
         }
 
         .back-link {
@@ -281,19 +269,19 @@
 
         /* ─── Header ─── */
         .note-header {
-            margin-bottom: 2.5rem;
-            padding-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+            margin-bottom: 2rem;
             border-bottom: 2px solid #f1f3f9;
         }
 
         .note-title {
-            font-size: 2.125rem;
-            font-weight: 800;
+            font-size: 2.25rem;
+            font-weight: 700;
             line-height: 1.2;
-            color: #111827;
-            margin: 0 0 1.25rem 0;
+            color: #1a1a1a;
+            margin: 0 0 1rem 0;
             letter-spacing: -0.03em;
-            font-family: 'Georgia', serif;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .note-meta {
@@ -331,71 +319,88 @@
             font-weight: 500;
         }
 
-        /* ─── Rich Text Content ─── */
+        /* ════════════════════════════════════════
+                   RICH TEXT CONTENT — Medium-style typography
+                   Body: 21px, line-height 1.9
+                   Font: source-serif-pro stack
+                   Color: #292929 (warm near-black, Medium's exact body color)
+                ════════════════════════════════════════ */
         .rich-content {
-            font-size: 1.0625rem;
-            line-height: 1.8;
-            color: #374151;
-            font-family: 'Georgia', serif;
+            font-size: 21px;
+            line-height: 1.9;
+            color: #292929;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
             margin-bottom: 2.5rem;
             word-wrap: break-word;
+            letter-spacing: 0.002em;
         }
 
         .rich-content h1 {
-            font-size: 2em;
-            font-weight: 800;
-            margin: 1.5em 0 0.5em;
-            color: #111827;
-            letter-spacing: -0.02em;
+            font-size: 1.875rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 2em 0 0.5em;
+            color: #1a1a1a;
+            letter-spacing: -0.025em;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
             border-bottom: 2px solid #f1f3f9;
             padding-bottom: 0.3em;
         }
 
         .rich-content h2 {
-            font-size: 1.5em;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin: 1.4em 0 0.4em;
-            color: #1f2937;
+            line-height: 1.25;
+            margin: 1.75em 0 0.5em;
+            color: #1a1a1a;
+            letter-spacing: -0.02em;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .rich-content h3 {
-            font-size: 1.25em;
+            font-size: 1.25rem;
             font-weight: 700;
-            margin: 1.2em 0 0.4em;
-            color: #1f2937;
+            line-height: 1.3;
+            margin: 1.5em 0 0.4em;
+            color: #242424;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .rich-content h4 {
-            font-size: 1.1em;
+            font-size: 1.0625rem;
             font-weight: 600;
-            margin: 1em 0 0.3em;
-            color: #374151;
+            line-height: 1.4;
+            margin: 1.25em 0 0.35em;
+            color: #292929;
+            font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
         }
 
         .rich-content p {
-            margin: 0 0 1em;
+            margin: 0 0 1.35em;
+            color: #292929;
         }
 
         .rich-content p:last-child {
             margin-bottom: 0;
         }
 
-        /* Links */
+        /* Links — subtle underline, Medium style */
         .rich-content a {
-            color: #4f46e5;
+            color: inherit;
             text-decoration: underline;
             text-underline-offset: 3px;
-            transition: color 0.15s;
+            text-decoration-color: rgba(41, 41, 41, 0.4);
+            transition: text-decoration-color 0.15s;
         }
 
         .rich-content a:hover {
-            color: #3730a3;
+            text-decoration-color: #292929;
         }
 
-        /* Strong / em */
+        /* Inline formatting */
         .rich-content strong {
             font-weight: 700;
-            color: #111827;
+            color: #1a1a1a;
         }
 
         .rich-content em {
@@ -404,7 +409,7 @@
 
         .rich-content s {
             text-decoration: line-through;
-            color: #9ca3af;
+            color: #b3b3b1;
         }
 
         .rich-content u {
@@ -431,20 +436,19 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* ─── Code Block (the star) ─── */
+        /* ─── Code Block ─── */
         .rich-content pre {
             background: #0d1117;
             border-radius: 10px;
             margin: 1.5em 0;
             overflow: hidden;
             font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 0.875em;
+            font-size: 0.875rem;
             border: 1px solid #21262d;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
             position: relative;
         }
 
-        /* Code block header bar (injected by JS) */
         .code-block-header {
             display: flex;
             align-items: center;
@@ -477,9 +481,7 @@
             font-family: monospace;
             transition: all 0.15s;
             white-space: nowrap;
-            /* prevent wrapping */
             flex-shrink: 0;
-            /* don't let it grow/shrink weirdly */
             line-height: 1;
         }
 
@@ -511,30 +513,12 @@
             border: none;
             overflow-x: auto;
             white-space: pre;
-            line-height: 1.6;
+            line-height: 1.65;
             font-size: inherit;
             tab-size: 4;
         }
 
-        /* Line numbers on double-click */
-        .rich-content pre.show-line-numbers code {
-            counter-reset: line;
-        }
-
-        .rich-content pre.show-line-numbers code .hljs-ln-n::before {
-            counter-increment: line;
-            content: counter(line);
-            display: inline-block;
-            width: 2em;
-            margin-right: 1.5em;
-            text-align: right;
-            color: #4d5566;
-            border-right: 1px solid #2d333b;
-            padding-right: 1em;
-            user-select: none;
-        }
-
-        /* Scrollbar styling for code blocks */
+        /* Scrollbar for code blocks */
         .rich-content pre code::-webkit-scrollbar {
             height: 6px;
         }
@@ -552,15 +536,34 @@
             background: #484f58;
         }
 
-        /* ─── Blockquote ─── */
+        /* Line numbers (double-click to toggle) */
+        .rich-content pre.show-line-numbers code {
+            counter-reset: line;
+        }
+
+        .rich-content pre.show-line-numbers code .hljs-ln-n::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2em;
+            margin-right: 1.5em;
+            text-align: right;
+            color: #4d5566;
+            border-right: 1px solid #2d333b;
+            padding-right: 1em;
+            user-select: none;
+        }
+
+        /* ─── Blockquote — Medium style: bold dark left border, no bg ─── */
         .rich-content blockquote {
-            border-left: 4px solid #667eea;
-            padding: 10px 20px;
-            margin: 1.2em 0;
-            background: linear-gradient(to right, #f8f7ff, #fafafa);
-            border-radius: 0 8px 8px 0;
+            border-left: 3px solid #292929;
+            padding: 2px 0 2px 24px;
+            margin: 1.75em 0;
+            background: none;
+            border-radius: 0;
             font-style: italic;
-            color: #6b7280;
+            color: #6b6b6b;
+            font-size: 1.1em;
         }
 
         .rich-content blockquote p {
@@ -581,7 +584,7 @@
         }
 
         .rich-content li {
-            margin: 0.35em 0;
+            margin: 0.4em 0;
         }
 
         .rich-content li>ul,
@@ -624,7 +627,7 @@
         .rich-content hr {
             border: none;
             border-top: 2px solid #e5e7eb;
-            margin: 2em 0;
+            margin: 2.5em 0;
         }
 
         /* ─── Images ─── */
@@ -645,6 +648,7 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .rich-content table th {
@@ -653,7 +657,7 @@
             color: #1f2937;
             padding: 10px 14px;
             border: 1px solid #e5e7eb;
-            font-size: 0.9em;
+            font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
@@ -663,6 +667,7 @@
             border: 1px solid #e5e7eb;
             color: #374151;
             vertical-align: top;
+            font-size: 0.9375rem;
         }
 
         .rich-content table tr:nth-child(even) td {
@@ -702,6 +707,7 @@
             font-weight: 700;
             color: #111827;
             margin-bottom: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .attachments-icon {
@@ -756,6 +762,7 @@
         .attachment-details {
             flex: 1;
             min-width: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .attachment-name {
@@ -789,6 +796,7 @@
             transition: all 0.15s;
             border: none;
             cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .att-action-btn svg {
@@ -820,6 +828,7 @@
         .note-footer {
             padding-top: 1.5rem;
             border-top: 2px solid #f1f3f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .note-actions {
@@ -841,6 +850,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         .action-btn svg {
@@ -881,15 +891,32 @@
             }
 
             .note-container {
-                padding: 1.25rem 1rem;
+                padding: 1.5rem 1.25rem;
                 border-radius: 8px;
             }
 
             .note-title {
-                font-size: 1.5rem;
+                font-size: 1.75rem;
             }
 
             .rich-content {
+                font-size: 18px;
+                line-height: 1.85;
+            }
+
+            .rich-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .rich-content h2 {
+                font-size: 1.25rem;
+            }
+
+            .rich-content h3 {
+                font-size: 1.125rem;
+            }
+
+            .rich-content h4 {
                 font-size: 1rem;
             }
 
@@ -903,13 +930,12 @@
             }
 
             .rich-content pre {
-                margin: 1em -0rem;
-                /* let code blocks breathe */
                 border-radius: 8px;
+                font-size: 0.8125rem;
             }
 
             .rich-content pre code {
-                font-size: 0.78em;
+                font-size: inherit;
                 padding: 12px 14px;
             }
 
