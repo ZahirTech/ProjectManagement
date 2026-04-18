@@ -326,7 +326,7 @@
                    Color: #292929 (warm near-black, Medium's exact body color)
                 ════════════════════════════════════════ */
         .rich-content {
-            font-size: 20px;
+            font-size: 21px;
             line-height: 1.9;
             color: #292929;
             font-family: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -884,40 +884,133 @@
             font-style: italic;
         }
 
-        /* ─── Responsive ─── */
-        @media (max-width: 768px) {
-            .note-article {
-                padding: 0.5rem 0;
-            }
-
+        /* ─── Tablet (≤ 1024px) ─── */
+        @media (max-width: 1024px) {
             .note-container {
-                padding: 1.5rem 1.25rem;
-                border-radius: 8px;
+                max-width: 680px;
+                padding: 2.5rem 2rem;
             }
 
             .note-title {
-                font-size: 1.75rem;
+                font-size: 2rem;
             }
 
             .rich-content {
-                font-size: 18px;
-                line-height: 1.85;
+                font-size: 19px;
+                line-height: 1.88;
+            }
+        }
+
+        /* ─── Mobile (≤ 768px) ─── */
+        @media (max-width: 768px) {
+            .note-article {
+                padding: 0.25rem 0;
+            }
+
+            .note-container {
+                padding: 1.25rem 1rem;
+                border-radius: 8px;
+                box-shadow: none;
+            }
+
+            .back-link {
+                font-size: 0.8125rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .note-title {
+                font-size: 1.4rem;
+                letter-spacing: -0.02em;
+                line-height: 1.25;
+            }
+
+            .note-meta {
+                font-size: 0.75rem;
+                gap: 0.35rem;
+            }
+
+            .meta-icon {
+                width: 12px;
+                height: 12px;
+            }
+
+            .rich-content {
+                font-size: 16px;
+                line-height: 1.8;
+                letter-spacing: 0;
+                margin-bottom: 1.75rem;
             }
 
             .rich-content h1 {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
+                margin: 1.5em 0 0.4em;
             }
 
             .rich-content h2 {
-                font-size: 1.25rem;
+                font-size: 1.15rem;
+                margin: 1.4em 0 0.4em;
             }
 
             .rich-content h3 {
-                font-size: 1.125rem;
+                font-size: 1.05rem;
+                margin: 1.25em 0 0.35em;
             }
 
             .rich-content h4 {
-                font-size: 1rem;
+                font-size: 0.9375rem;
+                margin: 1.1em 0 0.3em;
+            }
+
+            .rich-content p {
+                margin: 0 0 1.1em;
+            }
+
+            .rich-content blockquote {
+                font-size: 1em;
+                padding: 2px 0 2px 16px;
+                margin: 1.25em 0;
+            }
+
+            .rich-content pre {
+                border-radius: 8px;
+                font-size: 0.75rem;
+                margin: 1.1em 0;
+            }
+
+            .rich-content pre code {
+                font-size: inherit;
+                padding: 10px 12px;
+                line-height: 1.6;
+            }
+
+            .code-block-header {
+                padding: 6px 10px;
+            }
+
+            .copy-code-btn {
+                font-size: 10px;
+                padding: 3px 7px;
+            }
+
+            .code-block-lang {
+                font-size: 10px;
+            }
+
+            .attachment-preview {
+                width: 56px;
+                height: 56px;
+            }
+
+            .file-icon-large {
+                font-size: 1.75rem;
+            }
+
+            .attachment-name {
+                font-size: 0.875rem;
+            }
+
+            .attachment-meta {
+                font-size: 0.75rem;
             }
 
             .note-actions {
@@ -927,25 +1020,48 @@
             .action-btn {
                 width: 100%;
                 justify-content: center;
+                font-size: 0.875rem;
+                padding: 0.55rem 1rem;
+            }
+
+            .note-timestamp {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* ─── Small phones (≤ 420px) ─── */
+        @media (max-width: 420px) {
+            .note-container {
+                padding: 1rem 0.875rem;
+            }
+
+            .note-title {
+                font-size: 1.25rem;
+            }
+
+            .rich-content {
+                font-size: 15px;
+                line-height: 1.75;
+            }
+
+            .rich-content h1 {
+                font-size: 1.2rem;
+            }
+
+            .rich-content h2 {
+                font-size: 1.1rem;
+            }
+
+            .rich-content h3 {
+                font-size: 1rem;
+            }
+
+            .rich-content h4 {
+                font-size: 0.9rem;
             }
 
             .rich-content pre {
-                border-radius: 8px;
-                font-size: 0.8125rem;
-            }
-
-            .rich-content pre code {
-                font-size: inherit;
-                padding: 12px 14px;
-            }
-
-            .code-block-header {
-                padding: 6px 10px;
-            }
-
-            .copy-code-btn {
-                font-size: 11px;
-                padding: 3px 8px;
+                font-size: 0.6875rem;
             }
         }
     </style>
