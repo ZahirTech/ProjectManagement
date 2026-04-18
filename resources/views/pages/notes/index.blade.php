@@ -48,7 +48,7 @@
 
                 <div class="note-card" onclick="window.location.href='{{ route('notes.show', $note->id) }}'">
 
-                    {{-- ── Thumbnail strip ── --}}
+                    {{-- ── Thumbnail banner ── --}}
                     <div class="note-thumb">
                         @if ($coverImage)
                             <img src="{{ asset('storage/' . $coverImage->file_path) }}" alt="{{ $note->title }}"
@@ -57,7 +57,6 @@
                             <div class="note-thumb-placeholder">
                                 <img src="https://miro.medium.com/v2/resize:fit:499/format:webp/1*nbyKjUXHHvJesxAT0aCenQ.jpeg"
                                     alt="{{ $note->title }}" loading="lazy">
-
                                 {{-- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                                     <polyline points="14 2 14 8 20 8" />
@@ -71,42 +70,46 @@
 
                     {{-- ── Card body ── --}}
                     <div class="note-body">
+
+                        {{-- Row 1: project label LEFT, action buttons RIGHT --}}
                         <div class="note-row-top">
                             <span class="note-project">{{ $note->project->name }}</span>
-                            <div class="note-badges">
-                                @if ($note->is_private)
-                                    <span class="badge badge-private">🔒 Private</span>
-                                @endif
-                                @if ($note->attachments && $note->attachments->count() > 0)
-                                    <span class="badge badge-attach">📎 {{ $note->attachments->count() }}</span>
+                            <div class="note-actions" onclick="event.stopPropagation()">
+                                <button class="icon-btn pin {{ $note->is_pinned ? 'pinned' : '' }}"
+                                    onclick="toggleNotePin({{ $note->id }})"
+                                    title="{{ $note->is_pinned ? 'Unpin' : 'Pin to Dashboard' }}">📌</button>
+                                @if ($note->created_by == auth()->id())
+                                    <button class="icon-btn"
+                                        onclick="window.location.href='{{ route('notes.edit', $note->id) }}'"
+                                        title="Edit">✏️</button>
+                                    <button class="icon-btn" onclick="deleteNote({{ $note->id }})"
+                                        title="Delete">🗑️</button>
                                 @endif
                             </div>
                         </div>
 
-                        <h3 class="note-title">{{ $note->title }}</h3>
+                        {{-- Title --}}
+                        <h3 class="note-title">
+                            {{ $note->title }}
+                            @if ($note->is_private)
+                                <span class="badge badge-private">🔒 Private</span>
+                            @endif
+                            @if ($note->attachments && $note->attachments->count() > 0)
+                                <span class="badge badge-attach">📎 {{ $note->attachments->count() }}</span>
+                            @endif
+                        </h3>
 
+                        {{-- Excerpt --}}
                         <p class="note-excerpt">
                             {{ Str::limit(strip_tags($note->content ?? 'No content'), 150) }}
                         </p>
 
+                        {{-- Footer: author LEFT, date RIGHT — clean, no buttons --}}
                         <div class="note-footer-row">
                             <span class="note-author">{{ $note->creator->name }}</span>
-                            <div class="note-right">
-                                <span class="note-date">{{ $note->updated_at->diffForHumans() }}</span>
-                                <div class="note-actions" onclick="event.stopPropagation()">
-                                    <button class="icon-btn pin {{ $note->is_pinned ? 'pinned' : '' }}"
-                                        onclick="toggleNotePin({{ $note->id }})"
-                                        title="{{ $note->is_pinned ? 'Unpin' : 'Pin to Dashboard' }}">📌</button>
-                                    @if ($note->created_by == auth()->id())
-                                        <button class="icon-btn edit"
-                                            onclick="window.location.href='{{ route('notes.edit', $note->id) }}'"
-                                            title="Edit">✏️</button>
-                                        <button class="icon-btn delete" onclick="deleteNote({{ $note->id }})"
-                                            title="Delete">🗑️</button>
-                                    @endif
-                                </div>
-                            </div>
+                            <span class="note-date">{{ $note->updated_at->diffForHumans() }}</span>
                         </div>
+
                     </div>
                 </div>
             @empty
@@ -195,39 +198,60 @@
         .note-body {
             flex: 1;
             min-width: 0;
-            padding: 16px 18px;
+            padding: 16px 20px 18px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 0;
         }
 
+        /* Row 1: project name + action buttons */
         .note-row-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
+            margin-bottom: 10px;
         }
 
         .note-project {
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
             color: #667eea;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
         }
 
-        .note-badges {
+        /* Action buttons sit at top-right — same as original design */
+        .note-actions {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 2px;
             flex-shrink: 0;
         }
 
+        /* Badges inline with title */
+        .note-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a202c;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
         .badge {
+            display: inline-flex;
+            align-items: center;
             font-size: 11px;
             padding: 2px 7px;
             border-radius: 20px;
             font-weight: 500;
+            vertical-align: middle;
+            margin-left: 4px;
+            white-space: nowrap;
         }
 
         .badge-private {
@@ -240,31 +264,20 @@
             color: #4361c2;
         }
 
-        .note-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a202c;
-            line-height: 1.35;
-            /* allow 2 lines on grid cards */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
+        /* Excerpt — darker and more readable */
         .note-excerpt {
-            font-size: 13px;
-            color: #718096;
-            line-height: 1.55;
+            font-size: 13.5px;
+            color: #4a5568;
+            line-height: 1.65;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
             flex: 1;
-            /* push footer to bottom */
+            margin-bottom: 14px;
         }
 
-        /* ── Footer row ── */
+        /* ── Footer row: just author + date, clean border on top ── */
         .note-footer-row {
             display: flex;
             align-items: center;
@@ -280,22 +293,10 @@
             font-weight: 500;
         }
 
-        .note-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .note-date {
             font-size: 12px;
             color: #a0aec0;
             white-space: nowrap;
-        }
-
-        .note-actions {
-            display: flex;
-            align-items: center;
-            gap: 2px;
         }
 
         /* ── Filter bar (unchanged) ── */
@@ -430,22 +431,20 @@
 
         /* ══ MOBILE: switch to horizontal list ══ */
         @media (max-width: 640px) {
-
-            /* Single column list */
             .notes-list {
                 grid-template-columns: 1fr;
-                gap: 6px;
+                gap: 8px;
             }
 
-            /* Card becomes horizontal again */
+            /* Card goes horizontal */
             .note-card {
                 flex-direction: row;
                 align-items: stretch;
             }
 
-            /* Thumb becomes left strip */
+            /* Thumb = left strip */
             .note-thumb {
-                width: 64px;
+                width: 72px;
                 height: auto;
                 flex-shrink: 0;
             }
@@ -460,40 +459,47 @@
             }
 
             .note-body {
-                padding: 11px 13px;
-                gap: 4px;
+                padding: 12px 14px 14px;
             }
 
-            /* Show full title on mobile — no truncation */
+            .note-row-top {
+                margin-bottom: 6px;
+            }
+
+            /* Full title — no truncation on mobile */
             .note-title {
-                font-size: 14px;
+                font-size: 15px;
+                font-weight: 700;
                 -webkit-line-clamp: unset;
-                white-space: normal;
-                text-overflow: unset;
                 display: block;
                 overflow: visible;
+                white-space: normal;
+                margin-bottom: 6px;
             }
 
-            /* Excerpt stays truncated (1 line) */
+            /* Excerpt: 2 lines on mobile */
             .note-excerpt {
-                -webkit-line-clamp: 1;
+                font-size: 13px;
+                -webkit-line-clamp: 2;
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
+                margin-bottom: 10px;
             }
 
-            /* Keep the border line, just tighten spacing */
+            /* Footer border stays visible */
             .note-footer-row {
                 padding-top: 8px;
                 border-top: 1px solid #e2e8f0;
-                margin-top: 4px;
+                margin-top: 0;
             }
 
+            /* Hide date on mobile to save space, keep author */
             .note-date {
                 display: none;
             }
 
-            /* Filter bar stacks vertically */
+            /* Filter bar stacks */
             .filter-bar {
                 flex-direction: column;
                 align-items: stretch;
