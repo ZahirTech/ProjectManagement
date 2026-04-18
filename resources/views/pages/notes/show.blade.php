@@ -321,11 +321,11 @@
         }
 
         /* ════════════════════════════════════════
-               RICH TEXT CONTENT — font scale
-               Body: 16.5px (matches Medium / Substack)
-               Headings: fixed rem values, not em,
-               so they don't compound off 16.5px
-            ════════════════════════════════════════ */
+                   RICH TEXT CONTENT — font scale
+                   Body: 16.5px (matches Medium / Substack)
+                   Headings: fixed rem values, not em,
+                   so they don't compound off 16.5px
+                ════════════════════════════════════════ */
         .rich-content {
             font-size: 16.5px;
             line-height: 1.85;
@@ -894,7 +894,7 @@
             /* 24px on mobile */
 
             .rich-content {
-                font-size: 15.5px;
+                font-size: 18.9px;
                 /* slightly smaller on mobile, still comfortable */
                 line-height: 1.8;
             }
