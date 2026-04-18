@@ -38,10 +38,6 @@
         <!-- Notes List -->
         <div class="notes-list">
             @forelse($notes as $note)
-                {{--
-                    Resolve a cover image: first attached image, or null.
-                    You can also store a dedicated cover_image field on the note.
-                --}}
                 @php
                     $coverImage = $note->attachments->firstWhere(fn($a) => str_starts_with($a->mime_type, 'image/'));
                 @endphp
@@ -57,13 +53,6 @@
                             <div class="note-thumb-placeholder">
                                 <img src="https://miro.medium.com/v2/resize:fit:499/format:webp/1*nbyKjUXHHvJesxAT0aCenQ.jpeg"
                                     alt="{{ $note->title }}" loading="lazy">
-                                {{-- <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                                    <polyline points="14 2 14 8 20 8" />
-                                    <line x1="16" y1="13" x2="8" y2="13" />
-                                    <line x1="16" y1="17" x2="8" y2="17" />
-                                    <polyline points="10 9 9 9 8 9" />
-                                </svg> --}}
                             </div>
                         @endif
                     </div>
@@ -91,22 +80,32 @@
                         {{-- Title --}}
                         <h3 class="note-title">
                             {{ $note->title }}
-                            @if ($note->is_private)
-                                <span class="badge badge-private">🔒 Private</span>
-                            @endif
-                            @if ($note->attachments && $note->attachments->count() > 0)
-                                <span class="badge badge-attach">📎 {{ $note->attachments->count() }}</span>
-                            @endif
                         </h3>
+
+                        {{-- Badges below title --}}
+                        @if ($note->is_private || ($note->attachments && $note->attachments->count() > 0))
+                            <div class="note-badges">
+                                @if ($note->is_private)
+                                    <span class="badge badge-private">🔒 Private</span>
+                                @endif
+                                @if ($note->attachments && $note->attachments->count() > 0)
+                                    <span class="badge badge-attach">📎 {{ $note->attachments->count() }}</span>
+                                @endif
+                            </div>
+                        @endif
 
                         {{-- Excerpt --}}
                         <p class="note-excerpt">
                             {{ Str::limit(strip_tags($note->content ?? 'No content'), 150) }}
                         </p>
 
-                        {{-- Footer: author LEFT, date RIGHT — clean, no buttons --}}
+                        {{-- Footer: author LEFT, date RIGHT --}}
                         <div class="note-footer-row">
-                            <span class="note-author">{{ $note->creator->name }}</span>
+                            <div class="note-author-wrap">
+                                <span
+                                    class="note-author-avatar">{{ strtoupper(substr($note->creator->name, 0, 1)) }}</span>
+                                <span class="note-author">{{ $note->creator->name }}</span>
+                            </div>
                             <span class="note-date">{{ $note->updated_at->diffForHumans() }}</span>
                         </div>
 
@@ -123,6 +122,18 @@
     </div>
 
     <style>
+        /* ── Font stack ── */
+        :root {
+            --font-serif: source-serif-pro, Georgia, Cambria, "Times New Roman", Times, serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --text-primary: #1a1a1a;
+            --text-secondary: #292929;
+            --text-muted: #6b7280;
+            --text-faint: #a0aec0;
+            --border: #e8eaf0;
+            --surface: #faf9f7;
+        }
+
         /* ══ DESKTOP: grid of cards ══ */
         .notes-list {
             display: grid;
@@ -131,24 +142,21 @@
             margin-top: 16px;
         }
 
-        /* ── Card: vertical (image on top) on desktop ── */
+        /* ── Card ── */
         .note-card {
             display: flex;
             flex-direction: column;
-            /* stack thumb → body vertically */
             background: white;
             border-radius: 12px;
-            border: 1px solid #e8eaf0;
+            border: 1px solid var(--border);
             overflow: hidden;
             cursor: pointer;
             transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
-            text-decoration: none;
-            color: inherit;
         }
 
         .note-card:hover {
             border-color: #c9d0e8;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             transform: translateY(-2px);
         }
 
@@ -156,11 +164,10 @@
             transform: translateY(0);
         }
 
-        /* ── Thumbnail — full-width banner on desktop ── */
+        /* ── Thumbnail ── */
         .note-thumb {
             width: 100%;
-            height: 160px;
-            /* fixed banner height */
+            height: 168px;
             flex-shrink: 0;
             overflow: hidden;
         }
@@ -170,14 +177,13 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.3s ease;
+            transition: transform 0.35s ease;
         }
 
         .note-card:hover .note-thumb img {
-            transform: scale(1.03);
+            transform: scale(1.04);
         }
 
-        /* Placeholder when no cover image */
         .note-thumb-placeholder {
             width: 100%;
             height: 100%;
@@ -187,24 +193,22 @@
             background: #f4f5f9;
         }
 
-        .note-thumb-placeholder svg {
-            width: 32px;
-            height: 32px;
-            color: #c0c6d8;
-            stroke: currentColor;
+        .note-thumb-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         /* ── Card body ── */
         .note-body {
             flex: 1;
             min-width: 0;
-            padding: 16px 20px 18px;
+            padding: 18px 20px 20px;
             display: flex;
             flex-direction: column;
-            gap: 0;
         }
 
-        /* Row 1: project name + action buttons */
+        /* Row 1: project label + action buttons */
         .note-row-top {
             display: flex;
             align-items: center;
@@ -213,15 +217,16 @@
             margin-bottom: 10px;
         }
 
+        /* Project label — Medium uses a subtle category tag above titles */
         .note-project {
+            font-family: var(--font-sans);
             font-size: 11px;
             font-weight: 700;
             color: #667eea;
             text-transform: uppercase;
-            letter-spacing: 0.07em;
+            letter-spacing: 0.08em;
         }
 
-        /* Action buttons sit at top-right — same as original design */
         .note-actions {
             display: flex;
             align-items: center;
@@ -229,28 +234,37 @@
             flex-shrink: 0;
         }
 
-        /* Badges inline with title */
+        /* ── Title — serif, like a Medium headline ── */
         .note-title {
-            font-size: 17px;
+            font-family: var(--font-serif);
+            font-size: 18px;
             font-weight: 700;
-            color: #1a202c;
-            line-height: 1.4;
+            color: var(--text-primary);
+            line-height: 1.35;
+            letter-spacing: -0.01em;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            margin: 0 0 8px 0;
+        }
+
+        /* ── Badges — below title, separate row ── */
+        .note-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
             margin-bottom: 10px;
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
+            font-family: var(--font-sans);
             font-size: 11px;
-            padding: 2px 7px;
+            padding: 2px 8px;
             border-radius: 20px;
             font-weight: 500;
-            vertical-align: middle;
-            margin-left: 4px;
             white-space: nowrap;
         }
 
@@ -264,42 +278,67 @@
             color: #4361c2;
         }
 
-        /* Excerpt — darker and more readable */
+        /* ── Excerpt — slightly warmer, more readable ── */
         .note-excerpt {
-            font-size: 13.5px;
-            color: #4a5568;
-            line-height: 1.65;
+            font-family: var(--font-serif);
+            font-size: 14.5px;
+            color: #4a4a4a;
+            line-height: 1.7;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
             flex: 1;
-            margin-bottom: 14px;
+            margin: 0 0 16px 0;
+            letter-spacing: 0.001em;
         }
 
-        /* ── Footer row: just author + date, clean border on top ── */
+        /* ── Footer row ── */
         .note-footer-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding-top: 12px;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #f0f0f0;
             margin-top: auto;
+            font-family: var(--font-sans);
+        }
+
+        .note-author-wrap {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        /* Small avatar circle — Medium-style author treatment */
+        .note-author-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #e8eaf6;
+            color: #4f46e5;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-family: var(--font-sans);
         }
 
         .note-author {
             font-size: 12px;
-            color: #a0aec0;
+            color: var(--text-muted);
             font-weight: 500;
         }
 
         .note-date {
             font-size: 12px;
-            color: #a0aec0;
+            color: var(--text-faint);
             white-space: nowrap;
         }
 
-        /* ── Filter bar (unchanged) ── */
+        /* ── Filter bar ── */
         .filter-bar {
             display: flex;
             justify-content: space-between;
@@ -307,9 +346,10 @@
             background: white;
             padding: 12px 20px;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
             margin-bottom: 4px;
             gap: 15px;
+            font-family: var(--font-sans);
         }
 
         .filter-left {
@@ -324,6 +364,7 @@
             font-size: 14px;
             cursor: pointer;
             min-width: 200px;
+            font-family: var(--font-sans);
         }
 
         .filter-right {
@@ -391,7 +432,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            opacity: 0.4;
+            opacity: 0.35;
             transition: opacity 0.15s, background 0.15s;
         }
 
@@ -412,6 +453,7 @@
             border-radius: 12px;
             border: 1px dashed #e2e8f0;
             color: #a0aec0;
+            font-family: var(--font-sans);
         }
 
         .empty-state-icon {
@@ -436,15 +478,13 @@
                 gap: 8px;
             }
 
-            /* Card goes horizontal */
             .note-card {
                 flex-direction: row;
                 align-items: stretch;
             }
 
-            /* Thumb = left strip */
             .note-thumb {
-                width: 72px;
+                width: 80px;
                 height: auto;
                 flex-shrink: 0;
             }
@@ -466,18 +506,16 @@
                 margin-bottom: 6px;
             }
 
-            /* Full title — no truncation on mobile */
             .note-title {
-                font-size: 15px;
-                font-weight: 700;
-                -webkit-line-clamp: unset;
-                display: block;
-                overflow: visible;
-                white-space: normal;
+                font-size: 16px;
+                -webkit-line-clamp: 2;
                 margin-bottom: 6px;
             }
 
-            /* Excerpt: 2 lines on mobile */
+            .note-badges {
+                margin-bottom: 6px;
+            }
+
             .note-excerpt {
                 font-size: 13px;
                 -webkit-line-clamp: 2;
@@ -487,19 +525,14 @@
                 margin-bottom: 10px;
             }
 
-            /* Footer border stays visible */
             .note-footer-row {
                 padding-top: 8px;
-                border-top: 1px solid #e2e8f0;
-                margin-top: 0;
             }
 
-            /* Hide date on mobile to save space, keep author */
             .note-date {
                 display: none;
             }
 
-            /* Filter bar stacks */
             .filter-bar {
                 flex-direction: column;
                 align-items: stretch;
