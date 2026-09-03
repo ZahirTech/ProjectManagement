@@ -107,7 +107,7 @@
                         <h2>Pinned Items</h2>
                         <span class="pinned-count">{{ $totalPinned }}</span>
                     </div>
-                    @if ($totalPinned > 4)
+                    @if ($totalPinned > 6)
                         <button class="btn-expand-new" id="togglePinnedBtn" onclick="togglePinnedItems()">
                             <span id="expandText">Show All</span>
                             <svg id="expandIcon" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -120,7 +120,7 @@
 
                 <!-- Pinned Items Grid -->
                 <div class="pinned-grid" id="pinnedGrid">
-                    @foreach ($allPinnedItems->take(4) as $item)
+                    @foreach ($allPinnedItems->take(6) as $item)
                         <div class="pinned-card"
                             onclick="window.location.href='{{ $item instanceof \App\Models\Note ? route('notes.show', $item->id) : route('projectmng.show', $item->id) }}'">
                             <!-- Unpin Button -->
@@ -212,10 +212,10 @@
                 </div>
 
                 <!-- Expandable Container for Additional Pinned Items -->
-                @if ($totalPinned > 4)
+                @if ($totalPinned > 6)
                     <div id="expandablePinnedItems" class="expandable-pinned-container-new">
                         <div class="pinned-grid">
-                            @foreach ($allPinnedItems->skip(4) as $item)
+                            @foreach ($allPinnedItems->skip(6) as $item)
                                 <div class="pinned-card"
                                     onclick="window.location.href='{{ $item instanceof \App\Models\Note ? route('notes.show', $item->id) : route('projectmng.show', $item->id) }}'">
                                     <!-- Unpin Button -->
