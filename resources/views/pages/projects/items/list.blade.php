@@ -8,7 +8,7 @@
 
             <div class="header-actions">
                 <a href="{{ route('projectmng.create') }}" class="btn btn-primary">
-                    ➕  Create New Assignment
+                    ➕ Create New Assignment
                 </a>
             </div>
         </div>
@@ -40,7 +40,10 @@
         <!-- Tabs -->
         <div class="tabs-container">
             <div class="tabs-header">
-                <button class="tab-btn active" data-tab="pending" onclick="switchTab(event, 'pending')">
+                <button class="tab-btn active" data-tab="all" onclick="switchTab(event, 'all')">
+                    All <span class="tab-badge" id="badge-all">{{ $counts['all'] }}</span>
+                </button>
+                <button class="tab-btn" data-tab="pending" onclick="switchTab(event, 'pending')">
                     Pending <span class="tab-badge" id="badge-pending">{{ $counts['pending'] }}</span>
                 </button>
                 <button class="tab-btn" data-tab="processing" onclick="switchTab(event, 'processing')">
@@ -55,7 +58,11 @@
             </div>
 
             <!-- All Tab Contents - Load from Server -->
-            <div id="pending" class="tab-content active">
+            <div id="all" class="tab-content active">
+                <div class="tab-loading">Loading...</div>
+            </div>
+
+            <div id="pending" class="tab-content">
                 <div class="tab-loading">Loading...</div>
             </div>
 

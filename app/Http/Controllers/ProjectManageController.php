@@ -87,6 +87,7 @@ class ProjectManageController extends Controller
 
         // Get counts for each status
         $counts = [
+            'all' => (clone $baseQuery)->count(),
             'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
             'processing' => (clone $baseQuery)->where('status', 'processing')->count(),
             'completed' => (clone $baseQuery)->where('status', 'completed')->count(),
@@ -99,8 +100,11 @@ class ProjectManageController extends Controller
     public function getTabItems(Request $request, $status)
     {
         $query = ProjectItem::with(['project', 'assignedUser', 'attachments'])
-            ->accessibleBy(Auth::id())
-            ->where('status', $status);
+            ->accessibleBy(Auth::id());
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
 
         // Apply project filter
         if ($request->has('project_id') && $request->project_id != 'all') {

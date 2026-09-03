@@ -340,6 +340,19 @@ function updateTabCounts(oldStatus, newStatus) {
 function moveRowToTab(row, itemId, oldStatus, newStatus) {
     if (!row) return;
 
+    const currentTab = document.querySelector('.tab-content.active');
+    const currentTabId = currentTab ? currentTab.id : null;
+
+    // "All" always contains the item regardless of status — just mark the
+    // affected status tabs stale so they refetch next time they're opened.
+    if (currentTabId === 'all') {
+        const oldTab = document.getElementById(oldStatus);
+        const newTab = document.getElementById(newStatus);
+        if (oldTab) oldTab.dataset.loaded = 'false';
+        if (newTab) newTab.dataset.loaded = 'false';
+        return;
+    }
+
     // Just remove the row with fade animation
     row.style.opacity = '0';
     setTimeout(() => {
@@ -505,9 +518,9 @@ function toggleAssignment() {
 // Document Ready
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Load first tab (pending) on page load
-    loadTabContent('pending');
-    document.getElementById('pending').dataset.loaded = 'true';
+    // Load "All" tab on page load
+    loadTabContent('all');
+    document.getElementById('all').dataset.loaded = 'true';
 
     // Initialize status selects with old status tracking
     document.querySelectorAll('.status-select').forEach(select => {
