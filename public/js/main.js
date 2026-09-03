@@ -223,7 +223,7 @@ function renderTabContent(tabElement, items, status) {
         </td>
         <td onclick="event.stopPropagation()">
             <div class="action-buttons">
-                
+
                 ${isCreator ? `
                     <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
                         onclick="togglePin(${item.id})"
@@ -712,7 +712,64 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// Shared: removes a pinned card, promotes a hidden one into the visible grid, and updates counts
+function removePinnedCardWithFill(card) {
+    card.style.transition = 'all 0.3s ease';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.9)';
 
+    setTimeout(() => {
+        const wasInVisibleGrid = card.closest('#pinnedGrid') !== null;
+        card.remove();
+
+        // Update the pinned count badge
+        const pinnedCount = document.querySelector('.pinned-count');
+        if (pinnedCount) {
+            const currentCount = parseInt(pinnedCount.textContent) || 0;
+            pinnedCount.textContent = Math.max(0, currentCount - 1);
+        }
+
+        // If we removed a visible card, promote the first hidden card into its place
+        if (wasInVisibleGrid) {
+            const visibleGrid = document.getElementById('pinnedGrid');
+            const expandableContainer = document.getElementById('expandablePinnedItems');
+            const hiddenGrid = expandableContainer ? expandableContainer.querySelector('.pinned-grid') : null;
+            const nextHiddenCard = hiddenGrid ? hiddenGrid.querySelector('.pinned-card') : null;
+
+            if (visibleGrid && nextHiddenCard) {
+                nextHiddenCard.style.opacity = '0';
+                nextHiddenCard.style.transform = 'translateY(10px)';
+                visibleGrid.appendChild(nextHiddenCard);
+
+                requestAnimationFrame(() => {
+                    nextHiddenCard.style.transition = 'all 0.3s ease';
+                    nextHiddenCard.style.opacity = '1';
+                    nextHiddenCard.style.transform = 'translateY(0)';
+                });
+            }
+        }
+
+        // Check if pinned section is now completely empty
+        const remainingCards = document.querySelectorAll('.pinned-card').length;
+        if (remainingCards === 0) {
+            const pinnedSection = document.querySelector('.pinned-section');
+            if (pinnedSection) {
+                pinnedSection.style.transition = 'all 0.3s ease';
+                pinnedSection.style.opacity = '0';
+                setTimeout(() => pinnedSection.remove(), 300);
+            }
+        }
+
+        // Hide the expand/collapse button once 6 or fewer items remain total
+        if (remainingCards <= 6) {
+            const expandBtn = document.getElementById('togglePinnedBtn');
+            if (expandBtn) expandBtn.style.display = 'none';
+
+            const expandableContainer = document.getElementById('expandablePinnedItems');
+            if (expandableContainer) expandableContainer.classList.remove('expanded');
+        }
+    }, 300);
+}
 
 // Toggle Pin - Pin/Unpin item to dashboard (Now supports multiple pins with real-time removal)
 function togglePin(itemId) {
@@ -774,49 +831,8 @@ function togglePin(itemId) {
                             cardOnclick.includes(`projectmng.show', ${itemId}`) ||
                             cardOnclick.includes(`project_manage/${itemId}`)
                         )) {
-                            console.log('Found matching card, removing...'); // Debug
                             cardRemoved = true;
-
-                            // Fade out animation
-                            card.style.transition = 'all 0.3s ease';
-                            card.style.opacity = '0';
-                            card.style.transform = 'scale(0.9)';
-
-                            setTimeout(() => {
-                                card.remove();
-                                console.log('Card removed!'); // Debug
-
-                                // Update the pinned count
-                                const pinnedCount = document.querySelector('.pinned-count');
-                                if (pinnedCount) {
-                                    const currentCount = parseInt(pinnedCount.textContent);
-                                    pinnedCount.textContent = currentCount - 1;
-                                    console.log('Updated count to:', currentCount - 1); // Debug
-                                }
-
-                                // Check if pinned section is now empty
-                                const remainingCards = document.querySelectorAll('.pinned-card').length;
-                                console.log('Remaining cards:', remainingCards); // Debug
-
-                                if (remainingCards === 0) {
-                                    const pinnedSection = document.querySelector('.pinned-section');
-                                    if (pinnedSection) {
-                                        console.log('Removing entire pinned section'); // Debug
-                                        pinnedSection.style.transition = 'all 0.3s ease';
-                                        pinnedSection.style.opacity = '0';
-                                        setTimeout(() => pinnedSection.remove(), 300);
-                                    }
-                                }
-
-                                // Hide "Show All" button if 4 or fewer items remain
-                                if (remainingCards <= 4) {
-                                    const expandBtn = document.getElementById('togglePinnedBtn');
-                                    if (expandBtn) {
-                                        console.log('Hiding Show All button'); // Debug
-                                        expandBtn.style.display = 'none';
-                                    }
-                                }
-                            }, 300);
+                            removePinnedCardWithFill(card);
                         }
                     });
 
@@ -894,49 +910,8 @@ function toggleNotePin(noteId) {
                             cardOnclick.includes(`notes.show', ${noteId}`) ||
                             cardOnclick.includes(`notes/${noteId}`)
                         )) {
-                            console.log('Found matching note card, removing...'); // Debug
                             cardRemoved = true;
-
-                            // Fade out animation
-                            card.style.transition = 'all 0.3s ease';
-                            card.style.opacity = '0';
-                            card.style.transform = 'scale(0.9)';
-
-                            setTimeout(() => {
-                                card.remove();
-                                console.log('Note card removed!'); // Debug
-
-                                // Update the pinned count
-                                const pinnedCount = document.querySelector('.pinned-count');
-                                if (pinnedCount) {
-                                    const currentCount = parseInt(pinnedCount.textContent);
-                                    pinnedCount.textContent = currentCount - 1;
-                                    console.log('Updated count to:', currentCount - 1); // Debug
-                                }
-
-                                // Check if pinned section is now empty
-                                const remainingCards = document.querySelectorAll('.pinned-card').length;
-                                console.log('Remaining cards:', remainingCards); // Debug
-
-                                if (remainingCards === 0) {
-                                    const pinnedSection = document.querySelector('.pinned-section');
-                                    if (pinnedSection) {
-                                        console.log('Removing entire pinned section'); // Debug
-                                        pinnedSection.style.transition = 'all 0.3s ease';
-                                        pinnedSection.style.opacity = '0';
-                                        setTimeout(() => pinnedSection.remove(), 300);
-                                    }
-                                }
-
-                                // Hide "Show All" button if 4 or fewer items remain
-                                if (remainingCards <= 4) {
-                                    const expandBtn = document.getElementById('togglePinnedBtn');
-                                    if (expandBtn) {
-                                        console.log('Hiding Show All button'); // Debug
-                                        expandBtn.style.display = 'none';
-                                    }
-                                }
-                            }, 300);
+                            removePinnedCardWithFill(card);
                         }
                     });
 
