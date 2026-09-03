@@ -6,6 +6,9 @@ use App\Models\Project;
 use App\Models\ProjectItem;
 use App\Models\Attachment;
 use App\Models\User;
+use App\Mail\AssignmentAssignedMail;
+use App\Mail\AssignmentStatusChangedMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +48,14 @@ class ProjectManageController extends Controller
         $validated['is_private'] = $request->has('is_private') ? true : false;
 
         $item = ProjectItem::create($validated);
+
+        // Notify the assigned user
+        if ($item->assigned_to) {
+            $assignedUser = User::find($item->assigned_to);
+            if ($assignedUser && $assignedUser->email) {
+                Mail::to($assignedUser->email)->send(new AssignmentAssignedMail($item));
+            }
+        }
 
         // Handle file uploads
         if ($request->hasFile('attachments')) {
@@ -162,6 +173,8 @@ class ProjectManageController extends Controller
             abort(403, 'You do not have permission to edit this item.');
         }
 
+        $oldAssignedTo = $item->assigned_to;
+
         $validated = $request->validate([
             // 'project_id' => 'required|exists:projects,id',
             'title' => 'required|string|max:255',
@@ -188,6 +201,14 @@ class ProjectManageController extends Controller
 
         $item->update($validated);
 
+        // Notify the newly assigned user (only if it changed)
+        if (!empty($validated['assigned_to']) && $validated['assigned_to'] != $oldAssignedTo) {
+            $assignedUser = User::find($validated['assigned_to']);
+            if ($assignedUser && $assignedUser->email) {
+                Mail::to($assignedUser->email)->send(new AssignmentAssignedMail($item->fresh()));
+            }
+        }
+
         return redirect()->route('projectmng.show', $item->id)
             ->with('success', 'Item updated successfully!');
     }
@@ -204,11 +225,23 @@ class ProjectManageController extends Controller
             'status' => 'required|in:pending,processing,completed,on-hold'
         ]);
 
+        $oldStatus = $item->status;
+
         if ($validated['status'] == 'completed' && $item->status != 'completed') {
             $validated['completed_at'] = now();
         }
 
         $item->update($validated);
+
+        // Notify the creator if someone else changed the status
+        if ($oldStatus !== $validated['status'] && $item->created_by != Auth::id()) {
+            $creator = User::find($item->created_by);
+            if ($creator && $creator->email) {
+                Mail::to($creator->email)->send(
+                    new AssignmentStatusChangedMail($item, $oldStatus, $validated['status'], Auth::user())
+                );
+            }
+        }
 
         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
     }
