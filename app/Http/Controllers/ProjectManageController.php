@@ -36,7 +36,7 @@ class ProjectManageController extends Controller
             'assigned_to' => 'nullable|exists:users,id',
             'progress' => 'nullable|integer|min:0|max:100',
             'is_private' => 'nullable|boolean',
-            'attachments.*' => 'nullable|file|max:10240' // 10MB max
+            'attachments.*' => 'nullable|file|max:30720' // 10MB max
         ]);
 
         // If private, remove assignment
@@ -280,7 +280,7 @@ class ProjectManageController extends Controller
         }
 
         $request->validate([
-            'file' => 'required|file|max:10240'
+            'file' => 'required|file|max:30720'
         ]);
 
         $file = $request->file('file');
@@ -366,7 +366,7 @@ class ProjectManageController extends Controller
 
         $request->validate([
             'files' => 'required|array',
-            'files.*' => 'file|max:10240' // 10MB max per file
+            'files.*' => 'file|max:30720' // 30MB max per file
         ]);
 
         $uploadedFiles = [];
