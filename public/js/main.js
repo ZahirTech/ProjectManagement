@@ -224,10 +224,10 @@ function renderTabContent(tabElement, items, status) {
         <td onclick="event.stopPropagation()">
             <div class="action-buttons">
 
-                ${isCreator ? `
-                    <button class="icon-btn pin ${item.is_pinned ? 'pinned' : ''}"
-                        onclick="togglePin(${item.id})"
-                        title="${item.is_pinned ? 'Unpin' : 'Pin'}">📌</button>
+      ${isCreator ? `
+    <button class="icon-btn pin ${(item.pinned_by && item.pinned_by.length > 0) ? 'pinned' : ''}"
+        onclick="togglePin(${item.id})"
+        title="${(item.pinned_by && item.pinned_by.length > 0) ? 'Unpin' : 'Pin'}">📌</button>
                     <button class="icon-btn edit"
                         onclick="window.location.href='/project_manage/${item.id}/edit'"
                         title="Edit">✏️</button>

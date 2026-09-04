@@ -42,9 +42,9 @@
                     <div class="note-header">
                         <div class="note-project">{{ $note->project->name }}</div>
                         <div class="note-actions">
-                            <button class="icon-btn pin {{ $note->is_pinned ? 'pinned' : '' }}"
+                            <button class="icon-btn pin {{ $note->pinnedBy->isNotEmpty() ? 'pinned' : '' }}"
                                 onclick="toggleNotePin({{ $note->id }})"
-                                title="{{ $note->is_pinned ? 'Unpin' : 'Pin to Dashboard' }}">
+                                title="{{ $note->pinnedBy->isNotEmpty() ? 'Unpin' : 'Pin to Dashboard' }}">
                                 📌
                             </button>
                             @if ($note->created_by == auth()->id())

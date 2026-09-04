@@ -61,14 +61,18 @@ class DashboardController extends Controller
         // Get ALL pinned assignments (no project filter on pinned items)
         $pinnedAssignments = ProjectItem::accessibleBy($userId)
             ->with(['project', 'attachments'])
-            ->where('is_pinned', true)
+            ->whereHas('pinnedBy', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
             ->latest('updated_at')
             ->get();
 
         // Get ALL pinned notes (no project filter on pinned items)
         $pinnedNotes = Note::accessibleBy($userId)
             ->with(['project'])
-            ->where('is_pinned', true)
+            ->whereHas('pinnedBy', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
             ->latest('updated_at')
             ->get();
 

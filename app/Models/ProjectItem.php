@@ -76,4 +76,14 @@ class ProjectItem extends Model
     {
         return $query->where('assigned_to', $userId);
     }
+
+    public function pinnedBy()
+    {
+        return $this->morphMany(PinnedItem::class, 'pinnable');
+    }
+
+    public function isPinnedByUser($userId)
+    {
+        return $this->pinnedBy()->where('user_id', $userId)->exists();
+    }
 }

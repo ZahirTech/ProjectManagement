@@ -15,8 +15,11 @@ class NotesController extends Controller
     public function index(Request $request)
     {
         $projects = Project::where('status', 'active')->get();
+        $userId = Auth::id();
 
-        $query = Note::with(['project', 'creator', 'attachments'])
+        $query = Note::with(['project', 'creator', 'attachments', 'pinnedBy' => function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        }])
             ->accessibleBy(Auth::id());
 
         // Apply project filter
@@ -147,18 +150,32 @@ class NotesController extends Controller
     {
         $note = Note::findOrFail($id);
 
-        if ($note->created_by != Auth::id()) {
+        if (!$note->canView(Auth::id())) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Toggle pin status (no limit on number of pins for notes)
-        $note->is_pinned = !$note->is_pinned;
-        $note->save();
+        $userId = Auth::id();
+        $existing = \App\Models\PinnedItem::where('user_id', $userId)
+            ->where('pinnable_id', $note->id)
+            ->where('pinnable_type', Note::class)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+            $isPinned = false;
+        } else {
+            \App\Models\PinnedItem::create([
+                'user_id' => $userId,
+                'pinnable_id' => $note->id,
+                'pinnable_type' => Note::class,
+            ]);
+            $isPinned = true;
+        }
 
         return response()->json([
             'success' => true,
-            'is_pinned' => $note->is_pinned,
-            'message' => $note->is_pinned ? 'Note pinned to dashboard' : 'Note unpinned'
+            'is_pinned' => $isPinned,
+            'message' => $isPinned ? 'Note pinned to dashboard' : 'Note unpinned'
         ]);
     }
 

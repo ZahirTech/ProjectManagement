@@ -110,7 +110,11 @@ class ProjectManageController extends Controller
 
     public function getTabItems(Request $request, $status)
     {
-        $query = ProjectItem::with(['project', 'assignedUser', 'attachments'])
+        $userId = Auth::id();
+
+        $query = ProjectItem::with(['project', 'assignedUser', 'attachments', 'pinnedBy' => function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        }])
             ->accessibleBy(Auth::id());
 
         if ($status !== 'all') {
@@ -322,19 +326,33 @@ class ProjectManageController extends Controller
     {
         $item = ProjectItem::findOrFail($id);
 
-        // Only creator can pin/unpin
-        if ($item->created_by != Auth::id()) {
+        // Anyone who can view the item can pin it for themselves
+        if (!$item->canView(Auth::id())) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Toggle pin status (allow multiple pins)
-        $item->is_pinned = !$item->is_pinned;
-        $item->save();
+        $userId = Auth::id();
+        $existing = \App\Models\PinnedItem::where('user_id', $userId)
+            ->where('pinnable_id', $item->id)
+            ->where('pinnable_type', ProjectItem::class)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+            $isPinned = false;
+        } else {
+            \App\Models\PinnedItem::create([
+                'user_id' => $userId,
+                'pinnable_id' => $item->id,
+                'pinnable_type' => ProjectItem::class,
+            ]);
+            $isPinned = true;
+        }
 
         return response()->json([
             'success' => true,
-            'is_pinned' => $item->is_pinned,
-            'message' => $item->is_pinned ? 'Item pinned to dashboard' : 'Item unpinned'
+            'is_pinned' => $isPinned,
+            'message' => $isPinned ? 'Item pinned to dashboard' : 'Item unpinned'
         ]);
     }
 
