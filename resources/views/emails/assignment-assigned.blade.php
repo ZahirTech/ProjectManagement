@@ -1,24 +1,32 @@
-@component('mail::message')
-    # New Assignment
+<!DOCTYPE html>
+<html>
 
-    You've been assigned to a new task: **{{ $item->title }}**
+<body style="font-family: Arial, sans-serif; color: #2d3748; line-height: 1.6;">
+    <h2>New Assignment</h2>
 
-    - **Project:** {{ $item->project->name }}
-    - **Priority:** {{ ucfirst($item->priority) }}
-    - **Status:** {{ ucfirst($item->status) }}
-    @if ($item->due_date)
-        - **Due Date:** {{ \Carbon\Carbon::parse($item->due_date)->format('M d, Y') }}
-    @endif
+    <p>You've been assigned to a new task: <strong>{{ $item->title }}</strong></p>
+
+    <ul>
+        <li><strong>Project:</strong> {{ $item->project->name }}</li>
+        <li><strong>Priority:</strong> {{ ucfirst($item->priority) }}</li>
+        <li><strong>Status:</strong> {{ ucfirst($item->status) }}</li>
+        @if ($item->due_date)
+            <li><strong>Due Date:</strong> {{ \Carbon\Carbon::parse($item->due_date)->format('M d, Y') }}</li>
+        @endif
+    </ul>
 
     @if ($item->description)
-        **Description:**
-        {{ $item->description }}
+        <p><strong>Description:</strong><br>{{ $item->description }}</p>
     @endif
 
-    @component('mail::button', ['url' => route('projectmng.show', $item->id)])
-        View Assignment
-    @endcomponent
+    <p>
+        <a href="{{ route('projectmng.show', $item->id) }}"
+            style="display:inline-block;padding:10px 20px;background:#4299e1;color:#fff;text-decoration:none;border-radius:6px;">
+            View Assignment
+        </a>
+    </p>
 
-    Thanks,
-    {{ config('app.name') }}
-@endcomponent
+    <p>Thanks,<br>{{ config('app.name') }}</p>
+</body>
+
+</html>
