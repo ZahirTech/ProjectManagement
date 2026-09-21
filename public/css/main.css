@@ -152,7 +152,7 @@ body {
 
 /* Main Content Area */
 .main-content {
-    margin-left: 260px;
+    /* margin-left: 260px; */
     padding: 30px;
     min-height: 100vh;
     transition: margin-left 0.3s ease;
@@ -1512,7 +1512,7 @@ body {
 
     .main-content {
         margin-left: 0;
-        padding: 90px 15px 30px;
+        /* padding: 90px 15px 30px; */
     }
 
     .page-header h1 {
@@ -1589,4 +1589,10 @@ body {
     .attachment-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
 }

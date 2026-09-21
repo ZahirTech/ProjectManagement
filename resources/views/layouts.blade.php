@@ -13,7 +13,9 @@
 
 <body>
 
-    @include('design.includes.sidebar')
+    {{-- @include('design.includes.sidebar') --}}
+
+   @include('design.includes.topbar')
 
     <!-- Main Content -->
 

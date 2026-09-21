@@ -14,7 +14,7 @@
     </div>
 
     <div class="card">
-        <div class="card-body">
+        <div class="card-body table-scroll">
             @if ($projects->count() > 0)
                 <table class="data-table">
                     <thead>
