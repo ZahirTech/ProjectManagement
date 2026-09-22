@@ -84,6 +84,39 @@ function switchTab(event, tabName) {
 }
 
 // Load tab content via AJAX
+function loadTabContent(status) {
+    const tabElement = document.getElementById(status);
+    if (!tabElement) return;
+
+    // Show loading
+    tabElement.innerHTML = '<div class="tab-loading">Loading...</div>';
+
+    // Get current filters
+    const projectId = document.getElementById('listProjectSelect')?.value || 'all';
+    const myItems = document.getElementById('myItemsToggle')?.checked ? '1' : '0';
+
+    // Build URL with filters
+    const url = new URL(`/project_manage/tab/${status}`, window.location.origin);
+    url.searchParams.set('project_id', projectId);
+    url.searchParams.set('my_items', myItems);
+
+    // Fetch tab content
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTabContent(tabElement, data.items, status);
+                tabElement.dataset.loaded = 'true';
+            } else {
+                tabElement.innerHTML = '<div class="empty-state"><p>Error loading items</p></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading tab:', error);
+            tabElement.innerHTML = '<div class="empty-state"><p>Error loading items</p></div>';
+        });
+}
+
 function renderTabContent(tabElement, items, status) {
     if (!items || items.length === 0) {
         tabElement.innerHTML = `
@@ -264,40 +297,6 @@ function renderTabContent(tabElement, items, status) {
         ${cardsHTML}
     `;
 }
-
-// ----- mobile card (new) -----
-cardsHTML += `
-    <div class="assignment-card" data-status="${item.status}" onclick="showDetails(${item.id})">
-        <div class="assignment-card-top">
-            <div class="assignment-card-icon">✅</div>
-            <div class="assignment-card-body">
-                <p class="assignment-card-title">
-                    ${titleText}
-                    ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;">🔒</span>' : ''}
-                </p>
-                <div class="assignment-card-meta-row">
-                    <span class="assignment-card-id">#${itemId}</span>
-                    <span class="assignment-card-dot">·</span>
-                    <span class="assignment-card-project">${item.project.name}</span>
-                </div>
-                <div class="assignment-card-assignee">
-                    <span class="assignee-icon">👤</span>
-                    <span>${assignedTo}</span>
-                </div>
-            </div>
-        </div>
-        <div class="assignment-card-footer" onclick="event.stopPropagation()">
-            <select class="status-select status-${item.status}"
-                onchange="updateStatus(this, ${item.id})"
-                data-old-status="${item.status}">
-                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
-                <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
-                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
-                <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
-            </select>
-        </div>
-    </div>
-`;
 
 
 // Status Update Function - Updated with AJAX
