@@ -117,16 +117,6 @@ function loadTabContent(status) {
         });
 }
 
-const statusIcon = (s) => {
-    const icons = {
-        pending: '⏳',
-        processing: '🔄',
-        completed: '✅',
-        'on-hold': '⏸️'
-    };
-    return icons[s] || '📌';
-};
-
 function renderTabContent(tabElement, items, status) {
     if (!items || items.length === 0) {
         tabElement.innerHTML = `
@@ -144,6 +134,16 @@ function renderTabContent(tabElement, items, status) {
     const truncateText = (text, maxChars = 40) => {
         if (!text) return '-';
         return text.length > maxChars ? text.slice(0, maxChars) + '…' : text;
+    };
+
+    const statusIcon = (s) => {
+        const icons = {
+            pending: '⏳',
+            processing: '🔄',
+            completed: '✅',
+            'on-hold': '⏸️'
+        };
+        return icons[s] || '📌';
     };
 
     // ---------- DESKTOP TABLE ----------

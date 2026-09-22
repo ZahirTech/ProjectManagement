@@ -230,9 +230,11 @@
             }
         }
 
-        /* Mobile view adjustments for tabs and badges */
-
         /* Mobile assignment cards (hidden on desktop) */
+        .assignment-cards {
+            display: none;
+        }
+
         .assignment-card {
             display: flex;
             flex-direction: column;
@@ -335,10 +337,6 @@
             .assignment-cards {
                 display: block;
             }
-        }
-
-        .assignment-cards {
-            display: none;
         }
     </style>
 @endsection
