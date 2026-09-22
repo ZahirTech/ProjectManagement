@@ -84,37 +84,185 @@ function switchTab(event, tabName) {
 }
 
 // Load tab content via AJAX
-function loadTabContent(status) {
-    const tabElement = document.getElementById(status);
-    if (!tabElement) return;
+function renderTabContent(tabElement, items, status) {
+    if (!items || items.length === 0) {
+        tabElement.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>No Items Found</h3>
+                <p>There are no items with "${status.charAt(0).toUpperCase() + status.slice(1)}" status</p>
+            </div>
+        `;
+        return;
+    }
 
-    // Show loading
-    tabElement.innerHTML = '<div class="tab-loading">Loading...</div>';
+    const userId = document.querySelector('meta[name="user-id"]')?.content;
 
-    // Get current filters
-    const projectId = document.getElementById('listProjectSelect')?.value || 'all';
-    const myItems = document.getElementById('myItemsToggle')?.checked ? '1' : '0';
+    const truncateText = (text, maxChars = 40) => {
+        if (!text) return '-';
+        return text.length > maxChars ? text.slice(0, maxChars) + '…' : text;
+    };
 
-    // Build URL with filters
-    const url = new URL(`/project_manage/tab/${status}`, window.location.origin);
-    url.searchParams.set('project_id', projectId);
-    url.searchParams.set('my_items', myItems);
+    // ---------- DESKTOP TABLE ----------
+    let tableHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th style="width: 260px;">Title</th>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Due Date</th>
+                    <th>Assigned</th>
+                    <th>Attachments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
-    // Fetch tab content
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                renderTabContent(tabElement, data.items, status);
-                tabElement.dataset.loaded = 'true';
-            } else {
-                tabElement.innerHTML = '<div class="empty-state"><p>Error loading items</p></div>';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading tab:', error);
-            tabElement.innerHTML = '<div class="empty-state"><p>Error loading items</p></div>';
-        });
+    // ---------- MOBILE CARDS ----------
+    let cardsHTML = `<div class="assignment-cards">`;
+
+    items.forEach(item => {
+        const itemId = String(item.id).padStart(3, '0');
+
+        const dueDate = item.due_date
+            ? new Date(item.due_date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric'
+            })
+            : '-';
+
+        const assignedTo = item.assigned_user ? item.assigned_user.name : 'Not Assigned';
+        const attachmentCount = item.attachments ? item.attachments.length : 0;
+        const isCreator = userId && item.created_by == userId;
+
+        const titleText = truncateText(item.title, 400);
+
+        // ----- table row -----
+        tableHTML += `
+    <tr onclick="showDetails(${item.id})" style="cursor: pointer;" class="hoverable-row">
+        <td>#${itemId}</td>
+        <td>
+            <div style="
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                    width: max-content;
+                    max-width: 250px;
+                    min-width: 0;
+                    font-weight: 500;
+                    line-height: 1.4;
+                    " title="${item.title}">
+                    ${titleText}
+                    ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;display:inline-block;">🔒</span>' : ''}
+            </div>
+        </td>
+        <td>
+            <div style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
+                ${item.project.name}
+            </div>
+        </td>
+        <td onclick="event.stopPropagation()">
+            <select class="status-select status-${item.status}"
+                onchange="updateStatus(this, ${item.id})"
+                data-old-status="${item.status}">
+                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+            </select>
+        </td>
+        <td>${item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}</td>
+        <td>
+            <div style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
+                ${dueDate}
+            </div>
+        </td>
+        <td>
+            <div style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
+                ${assignedTo}
+            </div>
+        </td>
+        <td>
+            ${attachmentCount > 0
+                ? `<span class="attachment-indicator">📎 ${attachmentCount}</span>`
+                : '-'}
+        </td>
+        <td onclick="event.stopPropagation()">
+            <div class="action-buttons">
+
+      ${isCreator ? `
+    <button class="icon-btn pin ${(item.pinned_by && item.pinned_by.length > 0) ? 'pinned' : ''}"
+        onclick="togglePin(${item.id})"
+        title="${(item.pinned_by && item.pinned_by.length > 0) ? 'Unpin' : 'Pin'}">📌</button>
+                    <button class="icon-btn edit"
+                        onclick="window.location.href='/project_manage/${item.id}/edit'"
+                        title="Edit">✏️</button>
+                    <button class="icon-btn delete"
+                        onclick="deleteItem(${item.id})"
+                        title="Delete">🗑️</button>
+                ` : ''}
+            </div>
+        </td>
+    </tr>
+`;
+
+        // ----- mobile card -----
+        cardsHTML += `
+    <div class="assignment-card" data-status="${item.status}" onclick="showDetails(${item.id})">
+        <div class="assignment-card-top">
+            <div class="assignment-card-icon">✅</div>
+            <div class="assignment-card-body">
+                <p class="assignment-card-title">
+                    ${titleText}
+                    ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;">🔒</span>' : ''}
+                </p>
+                <div class="assignment-card-meta-row">
+                    <span class="assignment-card-id">#${itemId}</span>
+                    <span class="assignment-card-dot">·</span>
+                    <span class="assignment-card-project">${item.project.name}</span>
+                </div>
+                <div class="assignment-card-assignee">
+                    <span class="assignee-icon">👤</span>
+                    <span>${assignedTo}</span>
+                </div>
+            </div>
+        </div>
+        <div class="assignment-card-footer" onclick="event.stopPropagation()">
+            <select class="status-select status-${item.status}"
+                onchange="updateStatus(this, ${item.id})"
+                data-old-status="${item.status}">
+                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+            </select>
+        </div>
+    </div>
+`;
+    });
+
+    tableHTML += `
+            </tbody>
+        </table>
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Showing ${items.length} of ${items.length} items
+            </div>
+        </div>
+    `;
+
+    cardsHTML += `</div>`;
+
+    tabElement.innerHTML = `
+        <div class="table-view">${tableHTML}</div>
+        ${cardsHTML}
+    `;
 }
 
 // ----- mobile card (new) -----
