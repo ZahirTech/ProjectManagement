@@ -274,14 +274,17 @@
             pointer-events: none;
         }
 
-        /* ---- View switching: table on desktop, cards on mobile ---- */
+        /* ---- View switching: table on desktop, cards on mobile ----
+                   !important is used here defensively: if the page's global stylesheet
+                   sets display on .table-view/.project-cards/.data-table elsewhere,
+                   those rules can win the cascade and silently block this switch. */
         .project-cards {
-            display: none;
+            display: none !important;
         }
 
         @media (max-width: 767px) {
             .table-view {
-                display: none;
+                display: none !important;
             }
 
             .filter-bar {
@@ -293,7 +296,7 @@
             }
 
             .project-cards {
-                display: flex;
+                display: flex !important;
                 flex-direction: column;
                 gap: 10px;
             }
@@ -355,12 +358,38 @@
             color: #a0aec0;
         }
 
-        /* Reuse existing status-select color classes for the card's select too */
-        .project-card .status-select {
-            border-radius: 999px;
-            padding: 4px 10px;
-            font-size: 0.8125rem;
-            border: 1px solid #e2e8f0;
+        /* ---- Colored status pill (applies to the select in both the table
+                   and the mobile card, so status is visually distinct everywhere,
+                   regardless of whether a global stylesheet already styles it) ---- */
+        .status-select {
+            appearance: auto;
+            -webkit-appearance: menulist;
+            border: none !important;
+            border-radius: 999px !important;
+            padding: 5px 10px !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+        }
+
+        .status-select.status-active {
+            background-color: #ebf8ff !important;
+            color: #2b6cb0 !important;
+        }
+
+        .status-select.status-on_hold {
+            background-color: #feebc8 !important;
+            color: #9c4221 !important;
+        }
+
+        .status-select.status-completed {
+            background-color: #d4edda !important;
+            color: #155724 !important;
+        }
+
+        .status-select.status-archived {
+            background-color: #edf2f7 !important;
+            color: #4a5568 !important;
         }
     </style>
 @endsection
