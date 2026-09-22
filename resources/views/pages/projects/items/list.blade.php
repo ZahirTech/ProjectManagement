@@ -229,5 +229,75 @@
                 justify-content: space-between;
             }
         }
+
+        /* Mobile view adjustments for tabs and badges */
+
+        /* Mobile assignment cards (hidden on desktop) */
+        .assignment-cards {
+            display: none;
+        }
+
+        .assignment-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid #edf2f7;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .assignment-card-icon {
+            flex-shrink: 0;
+            font-size: 18px;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .assignment-card-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .assignment-card-title {
+            margin: 0;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .assignment-card-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+
+        .assignment-card-side {
+            flex-shrink: 0;
+        }
+
+        .assignment-card-side .status-select {
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border: 1px solid #e2e8f0;
+            max-width: 100px;
+        }
+
+        @media (max-width: 767px) {
+            .table-view {
+                display: none;
+            }
+
+            .assignment-cards {
+                display: block;
+            }
+        }
     </style>
 @endsection

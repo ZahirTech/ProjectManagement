@@ -136,6 +136,17 @@ function renderTabContent(tabElement, items, status) {
         return text.length > maxChars ? text.slice(0, maxChars) + '…' : text;
     };
 
+    const statusLabel = (s) => {
+        const map = {
+            pending: 'Pending',
+            processing: 'Processing',
+            completed: 'Completed',
+            'on-hold': 'On Hold'
+        };
+        return map[s] || s;
+    };
+
+    // ---------- DESKTOP TABLE (unchanged) ----------
     let tableHTML = `
         <table class="data-table">
             <thead>
@@ -154,6 +165,9 @@ function renderTabContent(tabElement, items, status) {
             <tbody>
     `;
 
+    // ---------- MOBILE CARDS (new) ----------
+    let cardsHTML = `<div class="assignment-cards">`;
+
     items.forEach(item => {
         const itemId = String(item.id).padStart(3, '0');
 
@@ -171,6 +185,7 @@ function renderTabContent(tabElement, items, status) {
 
         const titleText = truncateText(item.title, 400);
 
+        // ----- table row (unchanged) -----
         tableHTML += `
     <tr onclick="showDetails(${item.id})" style="cursor: pointer;" class="hoverable-row">
         <td>#${itemId}</td>
@@ -239,6 +254,34 @@ function renderTabContent(tabElement, items, status) {
         </td>
     </tr>
 `;
+
+        // ----- mobile card (new) -----
+        cardsHTML += `
+    <div class="assignment-card" data-status="${item.status}" onclick="showDetails(${item.id})">
+        <div class="assignment-card-icon">✅</div>
+        <div class="assignment-card-body">
+            <p class="assignment-card-title">
+                ${titleText}
+                ${item.is_private ? '<span style="color:#f56565;font-size:12px;margin-left:4px;">🔒</span>' : ''}
+            </p>
+            <div class="assignment-card-meta-row">
+                <span class="assignment-card-id">#${itemId}</span>
+                <span class="assignment-card-dot">·</span>
+                <span class="assignment-card-project">${item.project.name}</span>
+            </div>
+        </div>
+        <div class="assignment-card-side" onclick="event.stopPropagation()">
+            <select class="status-select status-${item.status}"
+                onchange="updateStatus(this, ${item.id})"
+                data-old-status="${item.status}">
+                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+            </select>
+        </div>
+    </div>
+`;
     });
 
     tableHTML += `
@@ -251,7 +294,12 @@ function renderTabContent(tabElement, items, status) {
         </div>
     `;
 
-    tabElement.innerHTML = tableHTML;
+    cardsHTML += `</div>`;
+
+    tabElement.innerHTML = `
+        <div class="table-view">${tableHTML}</div>
+        ${cardsHTML}
+    `;
 }
 
 
