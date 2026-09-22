@@ -299,13 +299,32 @@
             display: flex;
         }
 
+        .assignment-card-footer .status-select-wrap {
+            position: relative;
+            width: 100%;
+        }
+
         .assignment-card-footer .status-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 100%;
+            padding: 6px 28px 6px 12px;
             border-radius: 999px;
-            padding: 5px 10px;
             font-size: 0.75rem;
             border: 1px solid #e2e8f0;
-            width: auto;
-            max-width: none;
+            background: #fff;
+            color: #2d3748;
+        }
+
+        .assignment-card-footer .status-select-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            color: #a0aec0;
+            pointer-events: none;
         }
 
         @media (max-width: 767px) {
@@ -316,6 +335,10 @@
             .assignment-cards {
                 display: block;
             }
+        }
+
+        .assignment-cards {
+            display: none;
         }
     </style>
 @endsection

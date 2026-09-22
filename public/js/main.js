@@ -117,6 +117,16 @@ function loadTabContent(status) {
         });
 }
 
+const statusIcon = (s) => {
+    const icons = {
+        pending: '⏳',
+        processing: '🔄',
+        completed: '✅',
+        'on-hold': '⏸️'
+    };
+    return icons[s] || '📌';
+};
+
 function renderTabContent(tabElement, items, status) {
     if (!items || items.length === 0) {
         tabElement.innerHTML = `
@@ -249,7 +259,7 @@ function renderTabContent(tabElement, items, status) {
         cardsHTML += `
     <div class="assignment-card" data-status="${item.status}" onclick="showDetails(${item.id})">
         <div class="assignment-card-top">
-            <div class="assignment-card-icon">✅</div>
+            <div class="assignment-card-icon">${statusIcon(item.status)}</div>
             <div class="assignment-card-body">
                 <p class="assignment-card-title">
                     ${titleText}
@@ -267,14 +277,17 @@ function renderTabContent(tabElement, items, status) {
             </div>
         </div>
         <div class="assignment-card-footer" onclick="event.stopPropagation()">
-            <select class="status-select status-${item.status}"
-                onchange="updateStatus(this, ${item.id})"
-                data-old-status="${item.status}">
-                <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
-                <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
-                <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
-                <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
-            </select>
+            <div class="status-select-wrap">
+                <select class="status-select status-${item.status}"
+                    onchange="updateStatus(this, ${item.id})"
+                    data-old-status="${item.status}">
+                    <option value="pending" ${item.status === 'pending' ? 'selected' : ''}>Pending</option>
+                    <option value="processing" ${item.status === 'processing' ? 'selected' : ''}>Processing</option>
+                    <option value="completed" ${item.status === 'completed' ? 'selected' : ''}>Completed</option>
+                    <option value="on-hold" ${item.status === 'on-hold' ? 'selected' : ''}>On Hold</option>
+                </select>
+                <span class="status-select-arrow">▾</span>
+            </div>
         </div>
     </div>
 `;
