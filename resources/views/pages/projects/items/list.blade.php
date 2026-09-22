@@ -290,6 +290,19 @@
             max-width: 100px;
         }
 
+        .assignment-card-assignee {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        .assignee-icon {
+            font-size: 0.8125rem;
+        }
+
         @media (max-width: 767px) {
             .table-view {
                 display: none;

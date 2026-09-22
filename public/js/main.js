@@ -269,6 +269,10 @@ function renderTabContent(tabElement, items, status) {
                 <span class="assignment-card-dot">·</span>
                 <span class="assignment-card-project">${item.project.name}</span>
             </div>
+            <div class="assignment-card-assignee">
+                <span class="assignee-icon">👤</span>
+                <span>${assignedTo}</span>
+            </div>
         </div>
         <div class="assignment-card-side" onclick="event.stopPropagation()">
             <select class="status-select status-${item.status}"
