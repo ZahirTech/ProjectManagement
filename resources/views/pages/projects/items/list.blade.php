@@ -233,14 +233,9 @@
         /* Mobile view adjustments for tabs and badges */
 
         /* Mobile assignment cards (hidden on desktop) */
-        .assignment-cards {
-            display: none;
-        }
-
         .assignment-card {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            flex-direction: column;
             background: #fff;
             border: 1px solid #edf2f7;
             border-radius: 14px;
@@ -249,10 +244,16 @@
             cursor: pointer;
         }
 
+        .assignment-card-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
         .assignment-card-icon {
             flex-shrink: 0;
             font-size: 18px;
-            line-height: 1;
+            line-height: 1.4;
             margin-top: 2px;
         }
 
@@ -278,18 +279,6 @@
             color: #a0aec0;
         }
 
-        .assignment-card-side {
-            flex-shrink: 0;
-        }
-
-        .assignment-card-side .status-select {
-            border-radius: 999px;
-            padding: 4px 8px;
-            font-size: 0.75rem;
-            border: 1px solid #e2e8f0;
-            max-width: 100px;
-        }
-
         .assignment-card-assignee {
             display: flex;
             align-items: center;
@@ -301,6 +290,22 @@
 
         .assignee-icon {
             font-size: 0.8125rem;
+        }
+
+        .assignment-card-footer {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f7fafc;
+            display: flex;
+        }
+
+        .assignment-card-footer .status-select {
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            border: 1px solid #e2e8f0;
+            width: auto;
+            max-width: none;
         }
 
         @media (max-width: 767px) {
