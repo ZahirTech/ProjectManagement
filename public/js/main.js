@@ -183,8 +183,8 @@ function renderTabContent(tabElement, items, status) {
         const attachmentCount = item.attachments ? item.attachments.length : 0;
         const isCreator = userId && item.created_by == userId;
 
-        // const titleText = truncateText(item.title, 800);
-        const titleText = item.title;
+        const titleText = truncateText(item.title, 900);
+        // const titleText = item.title;
 
         // ----- table row -----
         tableHTML += `
@@ -194,7 +194,7 @@ function renderTabContent(tabElement, items, status) {
             <div style="
                     display: -webkit-box;
                     -webkit-box-orient: vertical;
-                    -webkit-line-clamp: 2;
+                    -webkit-line-clamp: 4;
                     overflow: hidden;
                     width: max-content;
                     max-width: 250px;
