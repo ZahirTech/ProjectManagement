@@ -183,7 +183,7 @@ function renderTabContent(tabElement, items, status) {
         const attachmentCount = item.attachments ? item.attachments.length : 0;
         const isCreator = userId && item.created_by == userId;
 
-        const titleText = truncateText(item.title, 400);
+        const titleText = truncateText(item.title, 800);
 
         // ----- table row -----
         tableHTML += `
