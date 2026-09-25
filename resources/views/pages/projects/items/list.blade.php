@@ -338,5 +338,35 @@
                 display: block;
             }
         }
+
+        @media (max-width: 767px) {
+            .table-view {
+                display: none;
+            }
+
+            .assignment-cards {
+                display: block;
+            }
+
+            /* Sticky filter bar + tabs on mobile */
+            .filter-bar {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                margin-bottom: 0;
+                border-radius: 0;
+            }
+
+            .tabs-header {
+                position: sticky;
+                top: 0;
+                /* set dynamically by JS below */
+                z-index: 19;
+                background: #fff;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+        }
     </style>
 @endsection
