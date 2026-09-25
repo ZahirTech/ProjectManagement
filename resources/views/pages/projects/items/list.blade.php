@@ -15,7 +15,7 @@
 
         @include('design.includes.alert')
 
-        <!-- Sticky wrapper: filter bar + tabs header travel together on mobile -->
+        <!-- Fixed wrapper (mobile only): filter bar + tabs header travel together -->
         <div class="mobile-sticky-header">
             <!-- Compact Filter Bar -->
             <div class="filter-bar">
@@ -60,7 +60,10 @@
             </div>
         </div>
 
-        <!-- Tab contents (this part scrolls underneath the sticky header) -->
+        <!-- Spacer: reserves space the fixed header would otherwise cover (height set by JS, mobile only) -->
+        <div id="mobileHeaderSpacer" style="height:0;"></div>
+
+        <!-- Tab contents (this part scrolls underneath the fixed header on mobile) -->
         <div class="tabs-container">
             <div id="all" class="tab-content active">
                 <div class="tab-loading">Loading...</div>
@@ -83,6 +86,42 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function pinMobileHeader() {
+            const header = document.querySelector('.mobile-sticky-header');
+            const spacer = document.getElementById('mobileHeaderSpacer');
+            if (!header || !spacer) return;
+
+            if (window.innerWidth > 767) {
+                // Desktop: undo everything, header stays in normal flow
+                header.style.position = '';
+                header.style.top = '';
+                header.style.left = '';
+                header.style.right = '';
+                spacer.style.height = '0px';
+                return;
+            }
+
+            // If your topbar is fixed/sticky, offset below it so they don't overlap.
+            // Adjust this selector to match your actual topbar element/class.
+            const topbar = document.querySelector('.topbar');
+            let topOffset = 0;
+            if (topbar) {
+                const topbarStyle = window.getComputedStyle(topbar);
+                if (topbarStyle.position === 'fixed' || topbarStyle.position === 'sticky') {
+                    topOffset = topbar.getBoundingClientRect().height;
+                }
+            }
+
+            header.style.top = topOffset + 'px';
+            spacer.style.height = header.offsetHeight + 'px';
+        }
+
+        window.addEventListener('load', pinMobileHeader);
+        window.addEventListener('resize', pinMobileHeader);
+        document.addEventListener('DOMContentLoaded', pinMobileHeader);
+    </script>
 
     <style>
         .alert {
@@ -213,7 +252,7 @@
             }
         }
 
-        /* Responsive */
+        /* Responsive (desktop-to-tablet filter bar stacking) */
         @media (max-width: 640px) {
             .filter-bar {
                 flex-direction: column;
@@ -333,7 +372,7 @@
             pointer-events: none;
         }
 
-        /* Mobile-only rules: card view + sticky filter/tabs header */
+        /* Mobile-only rules: card view + fixed filter/tabs header */
         @media (max-width: 767px) {
             .table-view {
                 display: none;
@@ -344,10 +383,12 @@
             }
 
             .mobile-sticky-header {
-                position: sticky;
-                top: 0;
-                z-index: 20;
+                position: fixed;
+                left: 0;
+                right: 0;
+                z-index: 999;
                 background: #f7fafc;
+                width: 100%;
             }
 
             .mobile-sticky-header .filter-bar {
