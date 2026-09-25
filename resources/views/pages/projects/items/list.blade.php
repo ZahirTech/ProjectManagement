@@ -39,7 +39,7 @@
 
         <!-- Tabs -->
         <div class="tabs-container">
-            <div class="tabs-header" id="tabsHeader">
+            <div class="tabs-header">
                 <button class="tab-btn active" data-tab="all" onclick="switchTab(event, 'all')">
                     All <span class="tab-badge" id="badge-all">{{ $counts['all'] }}</span>
                 </button>
@@ -56,9 +56,6 @@
                     On Hold <span class="tab-badge" id="badge-on-hold">{{ $counts['on-hold'] }}</span>
                 </button>
             </div>
-
-            <!-- Spacer: prevents content jump once tabs become fixed -->
-            <div id="tabsHeaderSpacer" style="height:0;"></div>
 
             <!-- All Tab Contents - Load from Server -->
             <div id="all" class="tab-content active">
@@ -82,56 +79,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function initStickyTabs() {
-            const tabsHeader = document.getElementById('tabsHeader');
-            const spacer = document.getElementById('tabsHeaderSpacer');
-            if (!tabsHeader || !spacer) return;
-
-            const isMobile = () => window.innerWidth <= 767;
-            let originalOffsetTop = null;
-
-            function onScroll() {
-                if (!isMobile()) {
-                    tabsHeader.classList.remove('is-fixed');
-                    tabsHeader.style.top = '';
-                    spacer.style.height = '0px';
-                    originalOffsetTop = null;
-                    return;
-                }
-
-                if (originalOffsetTop === null) {
-                    const rect = tabsHeader.getBoundingClientRect();
-                    originalOffsetTop = rect.top + window.scrollY;
-                }
-
-                if (window.scrollY >= originalOffsetTop) {
-                    if (!tabsHeader.classList.contains('is-fixed')) {
-                        spacer.style.height = tabsHeader.offsetHeight + 'px';
-                        tabsHeader.classList.add('is-fixed');
-                    }
-                } else {
-                    if (tabsHeader.classList.contains('is-fixed')) {
-                        tabsHeader.classList.remove('is-fixed');
-                        spacer.style.height = '0px';
-                    }
-                }
-            }
-
-            window.addEventListener('scroll', onScroll, {
-                passive: true
-            });
-            window.addEventListener('resize', function() {
-                originalOffsetTop = null;
-                onScroll();
-            });
-
-            onScroll();
-        }
-
-        document.addEventListener('DOMContentLoaded', initStickyTabs);
-    </script>
 
     <style>
         .alert {
@@ -354,10 +301,9 @@
             display: flex;
         }
 
-        /* Only layout/shape rules here — NOT background or color,
-               so the status-pending / status-processing / status-completed /
-               status-on-hold classes (defined in main.css) keep controlling
-               the pill's actual color, same as the desktop dropdowns. */
+        /* Only layout/shape rules — background/color stay controlled by
+               the status-pending / status-processing / status-completed /
+               status-on-hold classes from main.css, same as desktop. */
         .assignment-card-footer .status-select-wrap {
             position: relative;
             width: 100%;
@@ -383,7 +329,12 @@
             pointer-events: none;
         }
 
-        /* Mobile-only: card view + status tabs pin to top once scrolled past */
+        /* Fix: this was blocking position: sticky on .tabs-header */
+        .tabs-container {
+            overflow: visible;
+        }
+
+        /* Mobile-only: card view + real sticky status tabs */
         @media (max-width: 767px) {
             .table-view {
                 display: none;
@@ -394,18 +345,13 @@
             }
 
             .tabs-header {
+                position: sticky;
+                top: 0;
+                z-index: 999;
                 background: #fff;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
-            }
-
-            .tabs-header.is-fixed {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 999;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             }
         }
