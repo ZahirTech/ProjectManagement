@@ -15,8 +15,8 @@
 
         @include('design.includes.alert')
 
-        <!-- Compact Filter Bar (normal flow at first; becomes a slide-in overlay once tabs pin) -->
-        <div class="filter-bar" id="filterBar">
+        <!-- Compact Filter Bar (normal scroll flow, NOT sticky) -->
+        <div class="filter-bar">
             <div class="filter-left">
                 <select id="listProjectSelect" class="compact-select">
                     <option value="all">All Projects</option>
@@ -57,7 +57,7 @@
                 </button>
             </div>
 
-            <!-- Spacer: gets height only once filter bar + tabs leave normal flow -->
+            <!-- Spacer: only gets height when tabs become fixed, prevents content jump -->
             <div id="tabsHeaderSpacer" style="height:0;"></div>
 
             <!-- All Tab Contents - Load from Server -->
@@ -84,20 +84,17 @@
     </div>
 
     <script>
-        function initStickyMobileHeader() {
-            const filterBar = document.getElementById('filterBar');
+        function initStickyTabs() {
             const tabsHeader = document.getElementById('tabsHeader');
             const spacer = document.getElementById('tabsHeaderSpacer');
-            if (!filterBar || !tabsHeader || !spacer) return;
+            if (!tabsHeader || !spacer) return;
 
             const isMobile = () => window.innerWidth <= 767;
             let originalOffsetTop = null;
-            let lastScrollY = window.scrollY;
-            let filterBarHidden = false;
 
-            // If your topbar is fixed/sticky, keep everything below it.
-            // Adjust '.topbar' to match your actual topbar element's class.
             function getTopOffset() {
+                // If a fixed/sticky topbar exists above the content, keep tabs below it.
+                // Adjust '.topbar' to match your actual topbar element's class if different.
                 const topbar = document.querySelector('.topbar');
                 if (!topbar) return 0;
                 const style = window.getComputedStyle(topbar);
@@ -107,71 +104,39 @@
                 return 0;
             }
 
-            function resetToNormalFlow() {
-                tabsHeader.classList.remove('is-fixed');
-                tabsHeader.style.top = '';
-                filterBar.classList.remove('is-fixed', 'is-hidden');
-                filterBar.style.top = '';
-                spacer.style.height = '0px';
-                originalOffsetTop = null;
-                filterBarHidden = false;
-            }
-
             function onScroll() {
                 if (!isMobile()) {
-                    resetToNormalFlow();
+                    tabsHeader.classList.remove('is-fixed');
+                    tabsHeader.style.top = '';
+                    spacer.style.height = '0px';
+                    originalOffsetTop = null;
                     return;
+                }
+
+                if (originalOffsetTop === null) {
+                    const rect = tabsHeader.getBoundingClientRect();
+                    originalOffsetTop = rect.top + window.scrollY - getTopOffset();
                 }
 
                 const topOffset = getTopOffset();
 
-                // Measure the tabs' natural resting position once, before anything is fixed.
-                if (originalOffsetTop === null) {
-                    const rect = tabsHeader.getBoundingClientRect();
-                    originalOffsetTop = rect.top + window.scrollY - topOffset;
-                }
-
-                const scrollY = window.scrollY;
-                const scrollingDown = scrollY > lastScrollY;
-                const delta = Math.abs(scrollY - lastScrollY);
-
-                if (scrollY >= originalOffsetTop) {
-                    // Past the tabs' natural position: pin the tabs bar.
+                if (window.scrollY >= originalOffsetTop) {
                     if (!tabsHeader.classList.contains('is-fixed')) {
-                        const combinedHeight = filterBar.offsetHeight + tabsHeader.offsetHeight;
-                        spacer.style.height = combinedHeight + 'px';
+                        spacer.style.height = tabsHeader.offsetHeight + 'px';
                         tabsHeader.classList.add('is-fixed');
-                        filterBar.classList.add('is-fixed');
-                        filterBar.style.top = topOffset + 'px';
-                        tabsHeader.style.top = (topOffset + filterBar.offsetHeight) + 'px';
-                        filterBarHidden = false;
                     }
-
-                    // Scroll-direction driven peek: scrolling up reveals the filter
-                    // bar as an overlay above the pinned tabs; scrolling down hides it.
-                    if (delta > 5) {
-                        if (scrollingDown && !filterBarHidden) {
-                            filterBar.classList.add('is-hidden');
-                            tabsHeader.style.top = topOffset + 'px';
-                            filterBarHidden = true;
-                        } else if (!scrollingDown && filterBarHidden) {
-                            filterBar.classList.remove('is-hidden');
-                            tabsHeader.style.top = (topOffset + filterBar.offsetHeight) + 'px';
-                            filterBarHidden = false;
-                        }
-                    }
+                    tabsHeader.style.top = topOffset + 'px';
                 } else {
-                    // Back near the top of the page: everything returns to normal flow.
-                    resetToNormalFlow();
+                    if (tabsHeader.classList.contains('is-fixed')) {
+                        tabsHeader.classList.remove('is-fixed');
+                        tabsHeader.style.top = '';
+                        spacer.style.height = '0px';
+                    }
                 }
-
-                lastScrollY = scrollY;
             }
 
-            window.addEventListener('scroll', onScroll, {
-                passive: true
-            });
-            window.addEventListener('resize', function() {
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', function () {
                 originalOffsetTop = null;
                 onScroll();
             });
@@ -179,7 +144,7 @@
             onScroll();
         }
 
-        document.addEventListener('DOMContentLoaded', initStickyMobileHeader);
+        document.addEventListener('DOMContentLoaded', initStickyTabs);
     </script>
 
     <style>
@@ -431,7 +396,7 @@
             pointer-events: none;
         }
 
-        /* Mobile-only: card view + collapsible filter bar + pinned tabs */
+        /* Mobile-only: card view + status tabs pin to top once scrolled past */
         @media (max-width: 767px) {
             .table-view {
                 display: none;
@@ -448,29 +413,13 @@
                 white-space: nowrap;
             }
 
-            .filter-bar.is-fixed {
-                position: fixed;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                margin-bottom: 0;
-                border-radius: 0;
-                transition: transform 0.25s ease;
-                transform: translateY(0);
-            }
-
-            .filter-bar.is-fixed.is-hidden {
-                transform: translateY(-100%);
-            }
-
             .tabs-header.is-fixed {
                 position: fixed;
                 left: 0;
                 right: 0;
                 z-index: 999;
-                transition: top 0.25s ease;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             }
         }
     </style>
-@endsection
+@endsectionF
