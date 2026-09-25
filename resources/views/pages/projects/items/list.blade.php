@@ -15,30 +15,32 @@
 
         @include('design.includes.alert')
 
-        <!-- Compact Filter Bar -->
-        <div class="filter-bar">
-            <div class="filter-left">
-                <select id="listProjectSelect" class="compact-select">
-                    <option value="all">All Projects</option>
-                    @foreach ($projects as $project)
-                        <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
-                            {{ $project->name }}
-                        </option>
-                    @endforeach
-                </select>
+        <!-- Sticky wrapper: filter bar + tabs header travel together on mobile -->
+        <div class="mobile-sticky-header">
+            <!-- Compact Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-left">
+                    <select id="listProjectSelect" class="compact-select">
+                        <option value="all">All Projects</option>
+                        @foreach ($projects as $project)
+                            <option value="{{ $project->id }}"
+                                {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                                {{ $project->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filter-right">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="myItemsToggle" {{ request('my_items') ? 'checked' : '' }}>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">My Assignments</span>
+                    </label>
+                </div>
             </div>
 
-            <div class="filter-right">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="myItemsToggle" {{ request('my_items') ? 'checked' : '' }}>
-                    <span class="toggle-slider"></span>
-                    <span class="toggle-label">My Assignments</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs-container">
+            <!-- Tabs header -->
             <div class="tabs-header">
                 <button class="tab-btn active" data-tab="all" onclick="switchTab(event, 'all')">
                     All <span class="tab-badge" id="badge-all">{{ $counts['all'] }}</span>
@@ -56,8 +58,10 @@
                     On Hold <span class="tab-badge" id="badge-on-hold">{{ $counts['on-hold'] }}</span>
                 </button>
             </div>
+        </div>
 
-            <!-- All Tab Contents - Load from Server -->
+        <!-- Tab contents (this part scrolls underneath the sticky header) -->
+        <div class="tabs-container">
             <div id="all" class="tab-content active">
                 <div class="tab-loading">Loading...</div>
             </div>
@@ -329,16 +333,7 @@
             pointer-events: none;
         }
 
-        @media (max-width: 767px) {
-            .table-view {
-                display: none;
-            }
-
-            .assignment-cards {
-                display: block;
-            }
-        }
-
+        /* Mobile-only rules: card view + sticky filter/tabs header */
         @media (max-width: 767px) {
             .table-view {
                 display: none;
@@ -348,20 +343,19 @@
                 display: block;
             }
 
-            /* Sticky filter bar + tabs on mobile */
-            .filter-bar {
+            .mobile-sticky-header {
                 position: sticky;
                 top: 0;
                 z-index: 20;
+                background: #f7fafc;
+            }
+
+            .mobile-sticky-header .filter-bar {
                 margin-bottom: 0;
                 border-radius: 0;
             }
 
             .tabs-header {
-                position: sticky;
-                top: 0;
-                /* set dynamically by JS below */
-                z-index: 19;
                 background: #fff;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
