@@ -16,7 +16,7 @@
         @include('design.includes.alert')
 
         <!-- Compact Filter Bar -->
-        <div class="filter-bar">
+        <div class="filter-bar" id="filterBar">
             <div class="filter-left">
                 <select id="listProjectSelect" class="compact-select">
                     <option value="all">All Projects</option>
@@ -39,7 +39,7 @@
 
         <!-- Tabs -->
         <div class="tabs-container">
-            <div class="tabs-header">
+            <div class="tabs-header" id="tabsHeader">
                 <button class="tab-btn active" data-tab="all" onclick="switchTab(event, 'all')">
                     All <span class="tab-badge" id="badge-all">{{ $counts['all'] }}</span>
                 </button>
@@ -56,6 +56,9 @@
                     On Hold <span class="tab-badge" id="badge-on-hold">{{ $counts['on-hold'] }}</span>
                 </button>
             </div>
+
+            <!-- Spacer: gets height once tabs leave normal flow -->
+            <div id="tabsHeaderSpacer" style="height:0;"></div>
 
             <!-- All Tab Contents - Load from Server -->
             <div id="all" class="tab-content active">
@@ -79,6 +82,82 @@
             </div>
         </div>
     </div>
+
+    <!-- Jump-to-top button (mobile only, appears once tabs are pinned) -->
+    <button id="scrollTopBtn" class="scroll-top-btn" title="Back to top"
+        onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        ↑
+    </button>
+
+    <script>
+        function initStickyTabs() {
+            const tabsHeader = document.getElementById('tabsHeader');
+            const spacer = document.getElementById('tabsHeaderSpacer');
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            if (!tabsHeader || !spacer) return;
+
+            const isMobile = () => window.innerWidth <= 767;
+            let originalOffsetTop = null;
+
+            // If your topbar is fixed/sticky, keep tabs below it.
+            // Adjust '.topbar' to match your actual topbar element's class.
+            function getTopOffset() {
+                const topbar = document.querySelector('.topbar');
+                if (!topbar) return 0;
+                const style = window.getComputedStyle(topbar);
+                if (style.position === 'fixed' || style.position === 'sticky') {
+                    return topbar.getBoundingClientRect().height;
+                }
+                return 0;
+            }
+
+            function onScroll() {
+                if (!isMobile()) {
+                    tabsHeader.classList.remove('is-fixed');
+                    tabsHeader.style.top = '';
+                    spacer.style.height = '0px';
+                    if (scrollTopBtn) scrollTopBtn.classList.remove('visible');
+                    originalOffsetTop = null;
+                    return;
+                }
+
+                const topOffset = getTopOffset();
+
+                if (originalOffsetTop === null) {
+                    const rect = tabsHeader.getBoundingClientRect();
+                    originalOffsetTop = rect.top + window.scrollY - topOffset;
+                }
+
+                if (window.scrollY >= originalOffsetTop) {
+                    if (!tabsHeader.classList.contains('is-fixed')) {
+                        spacer.style.height = tabsHeader.offsetHeight + 'px';
+                        tabsHeader.classList.add('is-fixed');
+                        tabsHeader.style.top = topOffset + 'px';
+                    }
+                    if (scrollTopBtn) scrollTopBtn.classList.add('visible');
+                } else {
+                    if (tabsHeader.classList.contains('is-fixed')) {
+                        tabsHeader.classList.remove('is-fixed');
+                        tabsHeader.style.top = '';
+                        spacer.style.height = '0px';
+                    }
+                    if (scrollTopBtn) scrollTopBtn.classList.remove('visible');
+                }
+            }
+
+            window.addEventListener('scroll', onScroll, {
+                passive: true
+            });
+            window.addEventListener('resize', function() {
+                originalOffsetTop = null;
+                onScroll();
+            });
+
+            onScroll();
+        }
+
+        document.addEventListener('DOMContentLoaded', initStickyTabs);
+    </script>
 
     <style>
         .alert {
@@ -314,6 +393,9 @@
             padding: 6px 28px 6px 12px;
             border-radius: 999px;
             font-size: 0.75rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #2d3748;
         }
 
         .assignment-card-footer .status-select-arrow {
@@ -322,37 +404,70 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 0.7rem;
-            color: rgba(0, 0, 0, 0.4);
+            color: #a0aec0;
             pointer-events: none;
         }
 
-        .tabs-container {
-            overflow: visible !important;
+        /* Jump-to-top button */
+        .scroll-top-btn {
+            position: fixed;
+            right: 16px;
+            bottom: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: #4299e1;
+            color: #fff;
+            font-size: 20px;
+            line-height: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
         }
 
-        /* Mobile-only: card view + forced sticky status tabs */
+        .scroll-top-btn.visible {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile-only: card view + pinned tabs */
         @media (max-width: 767px) {
             .table-view {
-                display: none !important;
+                display: none;
             }
 
             .assignment-cards {
-                display: block !important;
+                display: block;
             }
 
             .tabs-header {
-                position: -webkit-sticky !important;
-                position: sticky !important;
-                top: 0 !important;
-                z-index: 999 !important;
+                background: #fff;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            }
 
-                /* TEMPORARY DEBUG MARKER — if you see this bright yellow bar,
-                       you're viewing the current code. Remove this line once confirmed. */
-                background: #fff700 !important;
+            .tabs-header.is-fixed {
+                position: fixed;
+                left: 0;
+                right: 0;
+                z-index: 999;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            }
+        }
+
+        /* Hide the jump-to-top button on desktop — it's a mobile convenience only */
+        @media (min-width: 768px) {
+            .scroll-top-btn {
+                display: none !important;
             }
         }
     </style>
