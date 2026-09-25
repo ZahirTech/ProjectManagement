@@ -21,6 +21,8 @@
                 </div>
             @endif
 
+            <div id="statusAlert" class="status-alert" style="display:none;"></div>
+
             <!-- Main Content Card -->
             <article class="assignment-card">
                 <!-- Header Section -->
@@ -28,8 +30,8 @@
                     <div class="header-main">
                         <h1 class="assignment-title">{{ $item->title }}</h1>
                         <div class="header-badges">
-                            <span class="status-badge status-{{ $item->status }}">
-                                {{ ucfirst($item->status) }}
+                            <span id="statusBadge" class="status-badge status-{{ $item->status }}">
+                                {{ ucfirst(str_replace('-', ' ', $item->status)) }}
                             </span>
                             @if ($item->is_private)
                                 <span class="private-badge">
@@ -40,6 +42,16 @@
                                     Private
                                 </span>
                             @endif
+
+                            <div class="status-change">
+                                <label for="statusSelect" class="status-change-label">Change status</label>
+                                <select id="statusSelect" class="status-select" data-item-id="{{ $item->id }}">
+                                    <option value="pending" @selected($item->status === 'pending')>Pending</option>
+                                    <option value="processing" @selected($item->status === 'processing')>Processing</option>
+                                    <option value="completed" @selected($item->status === 'completed')>Completed</option>
+                                    <option value="on-hold" @selected($item->status === 'on-hold')>On Hold</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -95,7 +107,7 @@
 
                         <div class="detail-box">
                             <div class="detail-icon priority-{{ $item->priority }}">
-                                @if ($item->priority === 'high')
+                                @if ($item->priority === 'high' || $item->priority === 'urgent')
                                     🔴
                                 @elseif($item->priority === 'medium')
                                     🟡
@@ -267,8 +279,8 @@
 
         .assignment-details-page {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 1.5rem 1rem;
+            background: #f4f5f7;
+            padding: 2rem 1rem;
         }
 
         .assignment-container {
@@ -281,21 +293,21 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            color: white;
+            color: #374151;
             text-decoration: none;
             font-weight: 500;
             margin-bottom: 1rem;
             padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.15);
+            background: #ffffff;
+            border: 1px solid #e2e4e9;
             border-radius: 8px;
-            backdrop-filter: blur(10px);
             transition: all 0.2s;
             font-size: 0.875rem;
         }
 
         .back-link:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateX(-4px);
+            background: #f3f4f6;
+            border-color: #d1d5db;
         }
 
         .back-link svg {
@@ -303,18 +315,26 @@
             height: 18px;
         }
 
-        /* Success Alert */
-        .success-alert {
+        /* Success / Status Alerts */
+        .success-alert,
+        .status-alert {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            background: #d4edda;
-            color: #155724;
+            background: #edf9f0;
+            color: #1e6b34;
             padding: 0.875rem 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
-            border-left: 4px solid #28a745;
+            border-left: 4px solid #2f9e50;
             font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .status-alert.error {
+            background: #fdecec;
+            color: #9b2226;
+            border-left-color: #d64545;
         }
 
         .success-alert svg {
@@ -326,15 +346,16 @@
         /* Main Card */
         .assignment-card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
             overflow: hidden;
         }
 
         /* Header */
         .assignment-header {
-            padding: 2rem 2rem 1.5rem;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.75rem 2rem 1.5rem;
+            background: #ffffff;
             border-bottom: 1px solid #e5e7eb;
         }
 
@@ -343,15 +364,16 @@
         }
 
         .assignment-title {
-            font-size: 1.875rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #1a202c;
+            color: #111827;
             margin: 0 0 0.875rem 0;
-            line-height: 1.3;
+            line-height: 1.35;
         }
 
         .header-badges {
             display: flex;
+            align-items: center;
             gap: 0.625rem;
             flex-wrap: wrap;
         }
@@ -372,8 +394,7 @@
             color: #92400e;
         }
 
-        .status-in-progress,
-        .status-in_progress {
+        .status-processing {
             background: #dbeafe;
             color: #1e40af;
         }
@@ -383,8 +404,7 @@
             color: #065f46;
         }
 
-        .status-on-hold,
-        .status-on_hold {
+        .status-on-hold {
             background: #fee2e2;
             color: #991b1b;
         }
@@ -393,8 +413,8 @@
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            background: #fef2f2;
-            color: #dc2626;
+            background: #f3f4f6;
+            color: #4b5563;
             padding: 0.35rem 0.875rem;
             border-radius: 20px;
             font-size: 0.8125rem;
@@ -406,6 +426,46 @@
             height: 13px;
         }
 
+        /* Inline status changer */
+        .status-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+
+        .status-change-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .status-select {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #374151;
+            padding: 0.4rem 1.75rem 0.4rem 0.75rem;
+            border-radius: 7px;
+            border: 1px solid #d1d5db;
+            background-color: #fff;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .status-select:hover {
+            border-color: #9ca3af;
+        }
+
+        .status-select:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
         .quick-info {
             display: flex;
             align-items: center;
@@ -413,6 +473,7 @@
             gap: 0.625rem;
             font-size: 0.875rem;
             color: #4b5563;
+            line-height: 1.6;
         }
 
         .info-item {
@@ -440,9 +501,9 @@
         }
 
         .section-title {
-            font-size: 1.125rem;
+            font-size: 1.0625rem;
             font-weight: 600;
-            color: #1a202c;
+            color: #111827;
             margin: 0 0 1.25rem 0;
         }
 
@@ -464,11 +525,10 @@
 
         /* Description */
         .description-content {
-            font-size: 1.0625rem;
-            line-height: 1.7;
-            color: #4b5563;
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #374151;
             white-space: pre-line;
-            /* Changed from pre-wrap to pre-line - this fixes the spacing issue */
             word-wrap: break-word;
         }
 
@@ -517,6 +577,7 @@
             font-size: 0.9375rem;
             color: #1f2937;
             font-weight: 500;
+            line-height: 1.5;
         }
 
         /* Progress Bar */
@@ -536,7 +597,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             border-radius: 10px;
             transition: width 0.3s ease;
         }
@@ -544,7 +605,7 @@
         .progress-text {
             font-size: 0.875rem;
             font-weight: 600;
-            color: #667eea;
+            color: #4f46e5;
         }
 
         /* Attachments */
@@ -603,6 +664,7 @@
             margin-bottom: 0.375rem;
             word-break: break-word;
             font-size: 0.9375rem;
+            line-height: 1.4;
         }
 
         .attachment-meta {
@@ -637,21 +699,21 @@
 
         .action-link.download {
             color: #2563eb;
-            background: #dbeafe;
+            background: #eff6ff;
         }
 
         .action-link.download:hover {
-            background: #3b82f6;
+            background: #2563eb;
             color: white;
         }
 
         .action-link.delete {
             color: #dc2626;
-            background: #fee2e2;
+            background: #fef2f2;
         }
 
         .action-link.delete:hover {
-            background: #ef4444;
+            background: #dc2626;
             color: white;
         }
 
@@ -664,7 +726,7 @@
         .empty-icon {
             font-size: 3.5rem;
             margin-bottom: 0.75rem;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .empty-text {
@@ -676,7 +738,7 @@
         .upload-area {
             margin-top: 1.25rem;
             padding: 1.5rem;
-            border: 2px dashed #cbd5e0;
+            border: 2px dashed #d1d5db;
             border-radius: 8px;
             text-align: center;
             cursor: pointer;
@@ -684,7 +746,7 @@
         }
 
         .upload-area:hover {
-            border-color: #667eea;
+            border-color: #9ca3af;
             background: #f9fafb;
         }
 
@@ -737,33 +799,29 @@
         }
 
         .btn-edit {
-            background: #667eea;
+            background: #4f46e5;
             color: white;
         }
 
         .btn-edit:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #4338ca;
         }
 
         .btn-delete {
             background: white;
-            color: #ef4444;
-            border: 2px solid #ef4444;
+            color: #dc2626;
+            border: 1px solid #dc2626;
         }
 
         .btn-delete:hover {
-            background: #ef4444;
+            background: #dc2626;
             color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
             .assignment-details-page {
-                padding: 1rem 0.5rem;
+                padding: 1rem 0.625rem;
             }
 
             .assignment-header,
@@ -771,15 +829,46 @@
             .details-section,
             .attachments-section,
             .assignment-footer {
-                padding: 1.25rem 1rem;
+                padding: 1.25rem 1.125rem;
             }
 
             .assignment-title {
-                font-size: 1.5rem;
+                font-size: 1.375rem;
+                line-height: 1.4;
+                margin-bottom: 1rem;
+            }
+
+            .header-badges {
+                gap: 0.5rem;
+            }
+
+            .status-change {
+                margin-left: 0;
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 0.5rem;
+                padding-top: 0.75rem;
+                border-top: 1px dashed #e5e7eb;
+            }
+
+            .quick-info {
+                font-size: 0.8125rem;
+                line-height: 1.8;
+                gap: 0.5rem 0.625rem;
+            }
+
+            .description-content {
+                font-size: 0.9375rem;
+                line-height: 1.7;
             }
 
             .details-grid {
                 grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .detail-box {
+                padding: 0.875rem;
             }
 
             .footer-actions {
@@ -789,6 +878,7 @@
             .btn {
                 width: 100%;
                 justify-content: center;
+                padding: 0.75rem 1.25rem;
             }
 
             .attachment-item {
@@ -800,13 +890,92 @@
                 height: 140px;
             }
 
-            .quick-info {
-                font-size: 0.8125rem;
+            .attachment-name {
+                font-size: 0.9375rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .attachment-meta {
+                margin-bottom: 0.75rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .assignment-title {
+                font-size: 1.25rem;
+            }
+
+            .btn,
+            .back-link {
+                font-size: 0.875rem;
             }
         }
     </style>
 
     <script>
+        // ---- Status change from view page ----
+        const statusLabels = {
+            'pending': 'Pending',
+            'processing': 'Processing',
+            'completed': 'Completed',
+            'on-hold': 'On Hold'
+        };
+
+        function showStatusAlert(message, isError = false) {
+            const alertBox = document.getElementById('statusAlert');
+            alertBox.textContent = message;
+            alertBox.classList.toggle('error', isError);
+            alertBox.style.display = 'flex';
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 4000);
+        }
+
+        document.getElementById('statusSelect')?.addEventListener('change', function(e) {
+            const select = e.target;
+            const itemId = select.dataset.itemId;
+            const newStatus = select.value;
+            const previousStatus = select.dataset.previousValue || select.value;
+
+            select.disabled = true;
+
+            fetch(`/projectmng/${itemId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    select.disabled = false;
+                    if (data.success) {
+                        const badge = document.getElementById('statusBadge');
+                        badge.className = 'status-badge status-' + newStatus;
+                        badge.textContent = statusLabels[newStatus] || newStatus;
+                        select.dataset.previousValue = newStatus;
+                        showStatusAlert(data.message || 'Status updated successfully');
+                    } else {
+                        select.value = previousStatus;
+                        showStatusAlert(data.message || 'Failed to update status', true);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    select.disabled = false;
+                    select.value = previousStatus;
+                    showStatusAlert('Failed to update status. Please try again.', true);
+                });
+        });
+
         // File upload handler
         document.getElementById('detailsFileInput')?.addEventListener('change', function(e) {
             const files = e.target.files;
@@ -823,7 +992,7 @@
             const uploadArea = document.querySelector('.upload-area');
             const originalHTML = uploadArea.innerHTML;
             uploadArea.innerHTML = `
-                <div style="color: #667eea; font-weight: 600;">
+                <div style="color: #4f46e5; font-weight: 600;">
                     <svg style="width: 40px; height: 40px; margin: 0 auto 0.5rem; animation: spin 1s linear infinite;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
