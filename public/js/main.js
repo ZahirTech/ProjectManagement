@@ -4,19 +4,6 @@ function toggleSidebar() {
     const overlay = document.querySelector('.sidebar-overlay');
     const menuToggle = document.getElementById('menuToggle');
 
-
-    function updateStickyOffsets() {
-        if (window.innerWidth > 767) return;
-        const filterBar = document.querySelector('.filter-bar');
-        const tabsHeader = document.querySelector('.tabs-header');
-        if (filterBar && tabsHeader) {
-            tabsHeader.style.top = filterBar.offsetHeight + 'px';
-        }
-    }
-
-    window.addEventListener('resize', updateStickyOffsets);
-    window.addEventListener('DOMContentLoaded', updateStickyOffsets);
-
     sidebar.classList.toggle('active');
     overlay.classList.toggle('active');
 
@@ -37,6 +24,19 @@ function closeSidebar() {
     overlay.classList.remove('active');
     menuToggle.classList.remove('hidden');
 }
+
+// Keep the sticky tabs-header positioned right below the sticky filter-bar
+function updateStickyOffsets() {
+    if (window.innerWidth > 767) return;
+    const filterBar = document.querySelector('.filter-bar');
+    const tabsHeader = document.querySelector('.tabs-header');
+    if (filterBar && tabsHeader) {
+        tabsHeader.style.top = filterBar.offsetHeight + 'px';
+    }
+}
+
+window.addEventListener('resize', updateStickyOffsets);
+window.addEventListener('DOMContentLoaded', updateStickyOffsets);
 
 // Navigation Functions
 function showPage(pageName) {
