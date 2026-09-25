@@ -15,7 +15,7 @@
 
         @include('design.includes.alert')
 
-        <!-- Compact Filter Bar (normal flow at first; becomes a slide-in overlay once tabs pin) -->
+        <!-- Compact Filter Bar -->
         <div class="filter-bar" id="filterBar">
             <div class="filter-left">
                 <select id="listProjectSelect" class="compact-select">
@@ -57,9 +57,6 @@
                 </button>
             </div>
 
-            <!-- Spacer: gets height only once filter bar + tabs leave normal flow -->
-            <div id="tabsHeaderSpacer" style="height:0;"></div>
-
             <!-- All Tab Contents - Load from Server -->
             <div id="all" class="tab-content active">
                 <div class="tab-loading">Loading...</div>
@@ -84,102 +81,56 @@
     </div>
 
     <script>
-        function initStickyMobileHeader() {
+        function initFilterPeek() {
             const filterBar = document.getElementById('filterBar');
             const tabsHeader = document.getElementById('tabsHeader');
-            const spacer = document.getElementById('tabsHeaderSpacer');
-            if (!filterBar || !tabsHeader || !spacer) return;
+            if (!filterBar || !tabsHeader) return;
 
-            const isMobile = () => window.innerWidth <= 767;
-            let originalOffsetTop = null;
             let lastScrollY = window.scrollY;
-            let filterBarHidden = false;
-
-            // If your topbar is fixed/sticky, keep everything below it.
-            // Adjust '.topbar' to match your actual topbar element's class.
-            function getTopOffset() {
-                const topbar = document.querySelector('.topbar');
-                if (!topbar) return 0;
-                const style = window.getComputedStyle(topbar);
-                if (style.position === 'fixed' || style.position === 'sticky') {
-                    return topbar.getBoundingClientRect().height;
-                }
-                return 0;
-            }
-
-            function resetToNormalFlow() {
-                tabsHeader.classList.remove('is-fixed');
-                tabsHeader.style.top = '';
-                filterBar.classList.remove('is-fixed', 'is-hidden');
-                filterBar.style.top = '';
-                spacer.style.height = '0px';
-                originalOffsetTop = null;
-                filterBarHidden = false;
-            }
+            let ticking = false;
 
             function onScroll() {
-                if (!isMobile()) {
-                    resetToNormalFlow();
-                    return;
-                }
-
-                const topOffset = getTopOffset();
-
-                // Measure the tabs' natural resting position once, before anything is fixed.
-                if (originalOffsetTop === null) {
-                    const rect = tabsHeader.getBoundingClientRect();
-                    originalOffsetTop = rect.top + window.scrollY - topOffset;
-                }
+                if (window.innerWidth > 767) return;
 
                 const scrollY = window.scrollY;
                 const scrollingDown = scrollY > lastScrollY;
                 const delta = Math.abs(scrollY - lastScrollY);
 
-                if (scrollY >= originalOffsetTop) {
-                    // Past the tabs' natural position: pin the tabs bar.
-                    if (!tabsHeader.classList.contains('is-fixed')) {
-                        const combinedHeight = filterBar.offsetHeight + tabsHeader.offsetHeight;
-                        spacer.style.height = combinedHeight + 'px';
-                        tabsHeader.classList.add('is-fixed');
-                        filterBar.classList.add('is-fixed');
-                        filterBar.style.top = topOffset + 'px';
-                        tabsHeader.style.top = (topOffset + filterBar.offsetHeight) + 'px';
-                        filterBarHidden = false;
-                    }
+                // Only toggle once the tabs bar has actually reached the top
+                // (i.e. filter bar is already scrolled past / sticky-engaged).
+                const tabsRect = tabsHeader.getBoundingClientRect();
+                const tabsIsPinned = tabsRect.top <= 1;
 
-                    // Scroll-direction driven peek: scrolling up reveals the filter
-                    // bar as an overlay above the pinned tabs; scrolling down hides it.
-                    if (delta > 5) {
-                        if (scrollingDown && !filterBarHidden) {
-                            filterBar.classList.add('is-hidden');
-                            tabsHeader.style.top = topOffset + 'px';
-                            filterBarHidden = true;
-                        } else if (!scrollingDown && filterBarHidden) {
-                            filterBar.classList.remove('is-hidden');
-                            tabsHeader.style.top = (topOffset + filterBar.offsetHeight) + 'px';
-                            filterBarHidden = false;
-                        }
+                if (tabsIsPinned && delta > 5) {
+                    if (scrollingDown) {
+                        filterBar.classList.add('is-hidden');
+                        tabsHeader.style.top = '0px';
+                    } else {
+                        filterBar.classList.remove('is-hidden');
+                        tabsHeader.style.top = filterBar.offsetHeight + 'px';
                     }
-                } else {
-                    // Back near the top of the page: everything returns to normal flow.
-                    resetToNormalFlow();
+                } else if (!tabsIsPinned) {
+                    filterBar.classList.remove('is-hidden');
+                    tabsHeader.style.top = filterBar.offsetHeight + 'px';
                 }
 
                 lastScrollY = scrollY;
+                ticking = false;
             }
 
-            window.addEventListener('scroll', onScroll, {
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(onScroll);
+                    ticking = true;
+                }
+            }, {
                 passive: true
-            });
-            window.addEventListener('resize', function() {
-                originalOffsetTop = null;
-                onScroll();
             });
 
             onScroll();
         }
 
-        document.addEventListener('DOMContentLoaded', initStickyMobileHeader);
+        document.addEventListener('DOMContentLoaded', initFilterPeek);
     </script>
 
     <style>
@@ -431,7 +382,12 @@
             pointer-events: none;
         }
 
-        /* Mobile-only: card view + collapsible filter bar + pinned tabs */
+        /* Fix: this was blocking position: sticky on .tabs-header */
+        .tabs-container {
+            overflow: visible;
+        }
+
+        /* Mobile-only: card view + real sticky filter bar + tabs */
         @media (max-width: 767px) {
             .table-view {
                 display: none;
@@ -446,12 +402,15 @@
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
+                position: sticky;
+                top: 0;
+                z-index: 999;
+                transition: top 0.25s ease;
             }
 
-            .filter-bar.is-fixed {
-                position: fixed;
-                left: 0;
-                right: 0;
+            .filter-bar {
+                position: sticky;
+                top: 0;
                 z-index: 1000;
                 margin-bottom: 0;
                 border-radius: 0;
@@ -459,17 +418,8 @@
                 transform: translateY(0);
             }
 
-            .filter-bar.is-fixed.is-hidden {
+            .filter-bar.is-hidden {
                 transform: translateY(-100%);
-            }
-
-            .tabs-header.is-fixed {
-                position: fixed;
-                left: 0;
-                right: 0;
-                z-index: 999;
-                transition: top 0.25s ease;
-                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             }
         }
     </style>
