@@ -15,33 +15,31 @@
 
         @include('design.includes.alert')
 
-        <!-- Fixed wrapper (mobile only): filter bar + tabs header travel together -->
-        <div class="mobile-sticky-header">
-            <!-- Compact Filter Bar -->
-            <div class="filter-bar">
-                <div class="filter-left">
-                    <select id="listProjectSelect" class="compact-select">
-                        <option value="all">All Projects</option>
-                        @foreach ($projects as $project)
-                            <option value="{{ $project->id }}"
-                                {{ request('project_id') == $project->id ? 'selected' : '' }}>
-                                {{ $project->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="filter-right">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="myItemsToggle" {{ request('my_items') ? 'checked' : '' }}>
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-label">My Assignments</span>
-                    </label>
-                </div>
+        <!-- Compact Filter Bar (normal scroll flow, NOT sticky) -->
+        <div class="filter-bar">
+            <div class="filter-left">
+                <select id="listProjectSelect" class="compact-select">
+                    <option value="all">All Projects</option>
+                    @foreach ($projects as $project)
+                        <option value="{{ $project->id }}" {{ request('project_id') == $project->id ? 'selected' : '' }}>
+                            {{ $project->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
-            <!-- Tabs header -->
-            <div class="tabs-header">
+            <div class="filter-right">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="myItemsToggle" {{ request('my_items') ? 'checked' : '' }}>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">My Assignments</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs-header" id="tabsHeader">
                 <button class="tab-btn active" data-tab="all" onclick="switchTab(event, 'all')">
                     All <span class="tab-badge" id="badge-all">{{ $counts['all'] }}</span>
                 </button>
@@ -58,13 +56,11 @@
                     On Hold <span class="tab-badge" id="badge-on-hold">{{ $counts['on-hold'] }}</span>
                 </button>
             </div>
-        </div>
 
-        <!-- Spacer: reserves space the fixed header would otherwise cover (height set by JS, mobile only) -->
-        <div id="mobileHeaderSpacer" style="height:0;"></div>
+            <!-- Spacer: only gets height when tabs become fixed, prevents content jump -->
+            <div id="tabsHeaderSpacer" style="height:0;"></div>
 
-        <!-- Tab contents (this part scrolls underneath the fixed header on mobile) -->
-        <div class="tabs-container">
+            <!-- All Tab Contents - Load from Server -->
             <div id="all" class="tab-content active">
                 <div class="tab-loading">Loading...</div>
             </div>
@@ -88,39 +84,69 @@
     </div>
 
     <script>
-        function pinMobileHeader() {
-            const header = document.querySelector('.mobile-sticky-header');
-            const spacer = document.getElementById('mobileHeaderSpacer');
-            if (!header || !spacer) return;
+        function initStickyTabs() {
+            const tabsHeader = document.getElementById('tabsHeader');
+            const spacer = document.getElementById('tabsHeaderSpacer');
+            if (!tabsHeader || !spacer) return;
 
-            if (window.innerWidth > 767) {
-                // Desktop: undo everything, header stays in normal flow
-                header.style.position = '';
-                header.style.top = '';
-                header.style.left = '';
-                header.style.right = '';
-                spacer.style.height = '0px';
-                return;
+            const isMobile = () => window.innerWidth <= 767;
+            let originalOffsetTop = null;
+
+            function getTopOffset() {
+                // If a fixed/sticky topbar exists above the content, keep tabs below it.
+                // Adjust '.topbar' to match your actual topbar element's class if different.
+                const topbar = document.querySelector('.topbar');
+                if (!topbar) return 0;
+                const style = window.getComputedStyle(topbar);
+                if (style.position === 'fixed' || style.position === 'sticky') {
+                    return topbar.getBoundingClientRect().height;
+                }
+                return 0;
             }
 
-            // If your topbar is fixed/sticky, offset below it so they don't overlap.
-            // Adjust this selector to match your actual topbar element/class.
-            const topbar = document.querySelector('.topbar');
-            let topOffset = 0;
-            if (topbar) {
-                const topbarStyle = window.getComputedStyle(topbar);
-                if (topbarStyle.position === 'fixed' || topbarStyle.position === 'sticky') {
-                    topOffset = topbar.getBoundingClientRect().height;
+            function onScroll() {
+                if (!isMobile()) {
+                    tabsHeader.classList.remove('is-fixed');
+                    tabsHeader.style.top = '';
+                    spacer.style.height = '0px';
+                    originalOffsetTop = null;
+                    return;
+                }
+
+                if (originalOffsetTop === null) {
+                    const rect = tabsHeader.getBoundingClientRect();
+                    originalOffsetTop = rect.top + window.scrollY - getTopOffset();
+                }
+
+                const topOffset = getTopOffset();
+
+                if (window.scrollY >= originalOffsetTop) {
+                    if (!tabsHeader.classList.contains('is-fixed')) {
+                        spacer.style.height = tabsHeader.offsetHeight + 'px';
+                        tabsHeader.classList.add('is-fixed');
+                    }
+                    tabsHeader.style.top = topOffset + 'px';
+                } else {
+                    if (tabsHeader.classList.contains('is-fixed')) {
+                        tabsHeader.classList.remove('is-fixed');
+                        tabsHeader.style.top = '';
+                        spacer.style.height = '0px';
+                    }
                 }
             }
 
-            header.style.top = topOffset + 'px';
-            spacer.style.height = header.offsetHeight + 'px';
+            window.addEventListener('scroll', onScroll, {
+                passive: true
+            });
+            window.addEventListener('resize', function() {
+                originalOffsetTop = null;
+                onScroll();
+            });
+
+            onScroll();
         }
 
-        window.addEventListener('load', pinMobileHeader);
-        window.addEventListener('resize', pinMobileHeader);
-        document.addEventListener('DOMContentLoaded', pinMobileHeader);
+        document.addEventListener('DOMContentLoaded', initStickyTabs);
     </script>
 
     <style>
@@ -372,7 +398,7 @@
             pointer-events: none;
         }
 
-        /* Mobile-only rules: card view + fixed filter/tabs header */
+        /* Mobile-only: card view + status tabs pin to top once scrolled past */
         @media (max-width: 767px) {
             .table-view {
                 display: none;
@@ -382,25 +408,19 @@
                 display: block;
             }
 
-            .mobile-sticky-header {
-                position: fixed;
-                left: 0;
-                right: 0;
-                z-index: 999;
-                background: #f7fafc;
-                width: 100%;
-            }
-
-            .mobile-sticky-header .filter-bar {
-                margin-bottom: 0;
-                border-radius: 0;
-            }
-
             .tabs-header {
                 background: #fff;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
+            }
+
+            .tabs-header.is-fixed {
+                position: fixed;
+                left: 0;
+                right: 0;
+                z-index: 999;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
             }
         }
     </style>
