@@ -15,7 +15,7 @@
 
         @include('design.includes.alert')
 
-        <!-- Compact Filter Bar (normal scroll flow, NOT sticky) -->
+        <!-- Compact Filter Bar -->
         <div class="filter-bar">
             <div class="filter-left">
                 <select id="listProjectSelect" class="compact-select">
@@ -57,7 +57,7 @@
                 </button>
             </div>
 
-            <!-- Spacer: only gets height when tabs become fixed, prevents content jump -->
+            <!-- Spacer: prevents content jump once tabs become fixed -->
             <div id="tabsHeaderSpacer" style="height:0;"></div>
 
             <!-- All Tab Contents - Load from Server -->
@@ -92,18 +92,6 @@
             const isMobile = () => window.innerWidth <= 767;
             let originalOffsetTop = null;
 
-            function getTopOffset() {
-                // If a fixed/sticky topbar exists above the content, keep tabs below it.
-                // Adjust '.topbar' to match your actual topbar element's class if different.
-                const topbar = document.querySelector('.topbar');
-                if (!topbar) return 0;
-                const style = window.getComputedStyle(topbar);
-                if (style.position === 'fixed' || style.position === 'sticky') {
-                    return topbar.getBoundingClientRect().height;
-                }
-                return 0;
-            }
-
             function onScroll() {
                 if (!isMobile()) {
                     tabsHeader.classList.remove('is-fixed');
@@ -115,28 +103,26 @@
 
                 if (originalOffsetTop === null) {
                     const rect = tabsHeader.getBoundingClientRect();
-                    originalOffsetTop = rect.top + window.scrollY - getTopOffset();
+                    originalOffsetTop = rect.top + window.scrollY;
                 }
-
-                const topOffset = getTopOffset();
 
                 if (window.scrollY >= originalOffsetTop) {
                     if (!tabsHeader.classList.contains('is-fixed')) {
                         spacer.style.height = tabsHeader.offsetHeight + 'px';
                         tabsHeader.classList.add('is-fixed');
                     }
-                    tabsHeader.style.top = topOffset + 'px';
                 } else {
                     if (tabsHeader.classList.contains('is-fixed')) {
                         tabsHeader.classList.remove('is-fixed');
-                        tabsHeader.style.top = '';
                         spacer.style.height = '0px';
                     }
                 }
             }
 
-            window.addEventListener('scroll', onScroll, { passive: true });
-            window.addEventListener('resize', function () {
+            window.addEventListener('scroll', onScroll, {
+                passive: true
+            });
+            window.addEventListener('resize', function() {
                 originalOffsetTop = null;
                 onScroll();
             });
@@ -368,6 +354,10 @@
             display: flex;
         }
 
+        /* Only layout/shape rules here — NOT background or color,
+               so the status-pending / status-processing / status-completed /
+               status-on-hold classes (defined in main.css) keep controlling
+               the pill's actual color, same as the desktop dropdowns. */
         .assignment-card-footer .status-select-wrap {
             position: relative;
             width: 100%;
@@ -381,9 +371,6 @@
             padding: 6px 28px 6px 12px;
             border-radius: 999px;
             font-size: 0.75rem;
-            border: 1px solid #e2e8f0;
-            background: #fff;
-            color: #2d3748;
         }
 
         .assignment-card-footer .status-select-arrow {
@@ -392,7 +379,7 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 0.7rem;
-            color: #a0aec0;
+            color: rgba(0, 0, 0, 0.4);
             pointer-events: none;
         }
 
@@ -415,6 +402,7 @@
 
             .tabs-header.is-fixed {
                 position: fixed;
+                top: 0;
                 left: 0;
                 right: 0;
                 z-index: 999;
@@ -422,4 +410,4 @@
             }
         }
     </style>
-@endsectionF
+@endsection
