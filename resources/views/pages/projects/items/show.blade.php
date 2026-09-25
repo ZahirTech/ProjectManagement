@@ -280,7 +280,7 @@
         .assignment-details-page {
             min-height: 100vh;
             background: #f4f5f7;
-            padding: 2rem 1rem;
+            /* padding: 2rem 1rem; */
         }
 
         .assignment-container {
