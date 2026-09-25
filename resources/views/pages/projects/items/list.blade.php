@@ -301,9 +301,6 @@
             display: flex;
         }
 
-        /* Only layout/shape rules — background/color stay controlled by
-               the status-pending / status-processing / status-completed /
-               status-on-hold classes from main.css, same as desktop. */
         .assignment-card-footer .status-select-wrap {
             position: relative;
             width: 100%;
@@ -329,30 +326,33 @@
             pointer-events: none;
         }
 
-        /* Fix: this was blocking position: sticky on .tabs-header */
         .tabs-container {
-            overflow: visible;
+            overflow: visible !important;
         }
 
-        /* Mobile-only: card view + real sticky status tabs */
+        /* Mobile-only: card view + forced sticky status tabs */
         @media (max-width: 767px) {
             .table-view {
-                display: none;
+                display: none !important;
             }
 
             .assignment-cards {
-                display: block;
+                display: block !important;
             }
 
             .tabs-header {
-                position: sticky;
-                top: 0;
-                z-index: 999;
-                background: #fff;
+                position: -webkit-sticky !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 999 !important;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+                /* TEMPORARY DEBUG MARKER — if you see this bright yellow bar,
+                       you're viewing the current code. Remove this line once confirmed. */
+                background: #fff700 !important;
             }
         }
     </style>
