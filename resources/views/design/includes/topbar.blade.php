@@ -1,3 +1,11 @@
+@php
+    // Neutral gray default avatar (inline SVG, no external request needed).
+    // Used whenever the user has no avatar set, or if their stored avatar URL fails to load.
+    $defaultAvatar =
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23ccd0d5'/%3E%3Ccircle cx='20' cy='16' r='7' fill='%23fff'/%3E%3Cpath d='M6 35c1-8 7-13 14-13s13 5 14 13' fill='%23fff'/%3E%3C/svg%3E";
+    $userAvatar = auth()->user()->avatar ?? $defaultAvatar;
+@endphp
+
 <style>
     :root {
         --nav-height: 56px;
@@ -445,12 +453,14 @@
 
         <div class="fb-profile">
             <a href="#" class="fb-navbar__icon-btn fb-profile__trigger" title="Profile">
-                <img class="fb-navbar__avatar" src="{{ auth()->user()->avatar ?? '' }}" alt="Profile">
+                <img class="fb-navbar__avatar" src="{{ $userAvatar }}"
+                    onerror="this.onerror=null;this.src='{{ $defaultAvatar }}';" alt="Profile">
             </a>
 
             <div class="fb-profile__menu">
                 <div class="fb-profile__header">
-                    <img src="{{ auth()->user()->avatar ?? 'https://i.pravatar.cc/80' }}" alt="">
+                    <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $defaultAvatar }}';"
+                        alt="">
                     <span class="fb-profile__name">{{ auth()->user()->name ?? 'Your Name' }}</span>
                 </div>
                 <div class="fb-profile__divider"></div>
@@ -465,7 +475,7 @@
                 <form method="POST" action="{{ route('logout') }}"
                     onsubmit="return confirm('Are you sure you want to log out?')">
                     @csrf
-                    <button type="submit" form="logout-form" class="fb-profile__logout">
+                    <button type="submit" class="fb-profile__logout">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                             <polyline points="16 17 21 12 16 7" />
@@ -505,7 +515,6 @@
             <path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3" />
             <polyline points="9 14 11 16 15 12" />
         </svg>
-        {{-- <span class="fb-navbar__badge">3</span> --}}
     </a>
     <a href="{{ route('projects.index') }}"
         class="fb-navbar-bottom__item {{ request()->routeIs('projects.*') ? 'active' : '' }}" title="Project List">
@@ -525,12 +534,14 @@
     </a> --}}
     <div class="fb-profile">
         <a href="#" class="fb-navbar-bottom__item is-avatar fb-profile__trigger" title="Profile">
-            <img src="{{ auth()->user()->avatar ?? '' }}" alt="Profile">
+            <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $defaultAvatar }}';"
+                alt="Profile">
         </a>
 
         <div class="fb-profile__menu">
             <div class="fb-profile__header">
-                <img src="{{ auth()->user()->avatar ?? '' }}" alt="">
+                <img src="{{ $userAvatar }}" onerror="this.onerror=null;this.src='{{ $defaultAvatar }}';"
+                    alt="">
                 <span class="fb-profile__name">{{ auth()->user()->name ?? 'Your Name' }}</span>
             </div>
             <div class="fb-profile__divider"></div>
@@ -545,7 +556,7 @@
             <form method="POST" action="{{ route('logout') }}"
                 onsubmit="return confirm('Are you sure you want to log out?')">
                 @csrf
-                <button type="submit" form="logout-form" class="fb-profile__logout">
+                <button type="submit" class="fb-profile__logout">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
