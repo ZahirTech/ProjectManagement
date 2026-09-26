@@ -445,8 +445,7 @@
 
         <div class="fb-profile">
             <a href="#" class="fb-navbar__icon-btn fb-profile__trigger" title="Profile">
-                <img class="fb-navbar__avatar" src="{{ auth()->user()->avatar ?? 'https://i.pravatar.cc/80' }}"
-                    alt="Profile">
+                <img class="fb-navbar__avatar" src="{{ auth()->user()->avatar ?? '' }}" alt="Profile">
             </a>
 
             <div class="fb-profile__menu">
@@ -462,14 +461,19 @@
                     </svg>
                     View Profile
                 </a>
-                <button type="submit" form="logout-form" class="fb-profile__logout">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <polyline points="16 17 21 12 16 7" />
-                        <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Log Out
-                </button>
+
+                <form method="POST" action="{{ route('logout') }}"
+                    onsubmit="return confirm('Are you sure you want to log out?')">
+                    @csrf
+                    <button type="submit" form="logout-form" class="fb-profile__logout">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        Log Out
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -521,12 +525,12 @@
     </a> --}}
     <div class="fb-profile">
         <a href="#" class="fb-navbar-bottom__item is-avatar fb-profile__trigger" title="Profile">
-            <img src="{{ auth()->user()->avatar ?? 'https://i.pravatar.cc/80' }}" alt="Profile">
+            <img src="{{ auth()->user()->avatar ?? '' }}" alt="Profile">
         </a>
 
         <div class="fb-profile__menu">
             <div class="fb-profile__header">
-                <img src="{{ auth()->user()->avatar ?? 'https://i.pravatar.cc/80' }}" alt="">
+                <img src="{{ auth()->user()->avatar ?? '' }}" alt="">
                 <span class="fb-profile__name">{{ auth()->user()->name ?? 'Your Name' }}</span>
             </div>
             <div class="fb-profile__divider"></div>
@@ -537,14 +541,20 @@
                 </svg>
                 View Profile
             </a>
-            <button type="submit" form="logout-form" class="fb-profile__logout">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                Log Out
-            </button>
+
+            <form method="POST" action="{{ route('logout') }}"
+                onsubmit="return confirm('Are you sure you want to log out?')">
+                @csrf
+                <button type="submit" form="logout-form" class="fb-profile__logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Log Out
+                </button>
+            </form>
+
         </div>
     </div>
 </nav>
